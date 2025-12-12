@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import bodyParser from 'body-parser';
+import cors from 'cors'; // <-- ADD THIS
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -10,8 +11,13 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';
 
-// Parse JSON requests
+// ---------- MIDDLEWARE ----------
 app.use(bodyParser.json());
+
+// Enable CORS so your frontend can call this API
+app.use(cors({
+  origin: '*' // you can replace '*' with your Cloudflare Pages URL for more security
+}));
 
 // Serve frontend folder
 app.use(express.static('frontend'));
