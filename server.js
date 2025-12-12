@@ -10,14 +10,19 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';
 
-// Serve your frontend folder
-app.use(express.static(path.join(process.cwd(), 'frontend')));
+// Parse JSON requests
 app.use(bodyParser.json());
 
-// Orders JSON path
-const ordersPath = path.join(process.cwd(), 'orders.json');
+// Serve frontend folder
+app.use(express.static('frontend'));
 
-// Load orders
+// ---------- ORDERS HANDLING ----------
+const dataDir = path.join(process.cwd(), 'data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+
+const ordersPath = path.join(dataDir, 'orders.json');
+
+// Load existing orders
 let orders = [];
 if (fs.existsSync(ordersPath)) {
   try {
@@ -28,7 +33,7 @@ if (fs.existsSync(ordersPath)) {
   }
 }
 
-// Save orders
+// Save orders helper
 function saveOrders() {
   try {
     fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2));
@@ -37,11 +42,11 @@ function saveOrders() {
   }
 }
 
-// Discord Bot
+// ---------- DISCORD BOT ----------
 let client = null;
 let botReady = false;
 
-if (process.env.BOT_TOKEN && process.env.ORDERS_CHANNEL_ID) {
+if (process.env.BOT_TOKEN) {
   client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
@@ -52,51 +57,47 @@ if (process.env.BOT_TOKEN && process.env.ORDERS_CHANNEL_ID) {
     partials: [Partials.Channel]
   });
 
+  client.login(process.env.BOT_TOKEN).catch(err => console.error(err));
   client.once('ready', () => {
     console.log(`Bot logged in as ${client.user.tag}`);
     botReady = true;
   });
 
-  client.login(process.env.BOT_TOKEN).catch(err => console.error('Discord login error:', err));
+  const ORDERS_CHANNEL_ID = process.env.ORDERS_CHANNEL_ID || '';
 
-  const ORDERS_CHANNEL_ID = process.env.ORDERS_CHANNEL_ID;
+  // Forward DMs to orders channel
+  client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+    if (message.guild) return; // only DMs
 
-  // Forward new orders to Discord channel
-  async function sendOrderToDiscord(order) {
-    if (!botReady) return;
-    try {
-      const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
-      if (!channel) {
-        console.error('Orders channel not found');
-        return;
+    if (ORDERS_CHANNEL_ID) {
+      try {
+        const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
+        if (channel) {
+          await channel.send({
+            embeds: [{
+              title: 'New DM Received',
+              color: 0x39ff14,
+              fields: [
+                { name: 'From', value: `${message.author.tag} (${message.author.id})`, inline: true },
+                { name: 'Message', value: message.content || '*No text content*' }
+              ],
+              timestamp: new Date().toISOString()
+            }]
+          });
+          await message.reply('Your message has been received! We will get back to you soon.');
+        }
+      } catch (err) {
+        console.error('Failed to forward DM:', err.message);
       }
-
-      await channel.send({
-        embeds: [
-          {
-            title: 'New Order Received',
-            color: 0x39ff14,
-            fields: [
-              { name: 'Name', value: order.name, inline: true },
-              { name: 'Email', value: order.email, inline: true },
-              { name: 'Discord ID', value: order.discord, inline: true },
-              { name: 'Package', value: order.packageSelected, inline: true },
-              { name: 'Currency', value: order.currency, inline: true }
-            ],
-            timestamp: new Date().toISOString()
-          }
-        ]
-      });
-    } catch (err) {
-      console.error('Failed to send order to Discord:', err);
     }
-  }
+  });
 
-  // Reply command
+  // !reply command in orders channel
   client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (!message.guild) return;
-    if (message.channel.id !== ORDERS_CHANNEL_ID) return;
+    if (ORDERS_CHANNEL_ID && message.channel.id !== ORDERS_CHANNEL_ID) return;
     if (!message.content.startsWith('!reply')) return;
 
     const args = message.content.slice(7).trim().split(' ');
@@ -108,6 +109,7 @@ if (process.env.BOT_TOKEN && process.env.ORDERS_CHANNEL_ID) {
     try {
       const user = await client.users.fetch(userId).catch(() => null);
       if (!user) return message.reply('User not found.');
+
       await user.send(`Reply from MyDadsSoft Recoverys: ${replyMessage}`);
       message.reply(`Message sent to ${user.tag}`);
     } catch (err) {
@@ -116,15 +118,14 @@ if (process.env.BOT_TOKEN && process.env.ORDERS_CHANNEL_ID) {
     }
   });
 } else {
-  console.log('BOT_TOKEN or ORDERS_CHANNEL_ID missing, Discord features disabled');
+  console.log('BOT_TOKEN not provided, Discord features disabled');
 }
 
-// API endpoints
-app.post('/api/order', async (req, res) => {
+// ---------- API ENDPOINTS ----------
+app.post('/api/order', (req, res) => {
   const { name, email, discord, packageSelected, currency } = req.body;
-
   if (!name || !email || !discord || !packageSelected || !currency) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
+    return res.status(400).json({ success: false, message: 'Missing fields in order.' });
   }
 
   const order = {
@@ -136,15 +137,10 @@ app.post('/api/order', async (req, res) => {
     currency,
     replied: false
   };
+
   orders.push(order);
   saveOrders();
-
-  // Send to Discord if possible
-  if (client && botReady) {
-    await sendOrderToDiscord(order);
-  }
-
-  res.json({ success: true, message: 'Order received. Check your Discord for a message from the bot!' });
+  res.json({ success: true, message: 'Order received!' });
 });
 
 app.get('/api/orders', (req, res) => res.json(orders));
@@ -170,5 +166,5 @@ app.post('/api/reply', async (req, res) => {
   }
 });
 
-// Start server
+// ---------- START SERVER ----------
 app.listen(PORT, HOST, () => console.log(`Server running at http://${HOST}:${PORT}`));
