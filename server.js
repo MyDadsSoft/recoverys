@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -9,7 +10,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';
 
-// Use /tmp/orders.json for Render write access
+// CORS so Cloudflare Pages can call your API
+app.use(cors());
+app.use(bodyParser.json());
+
+// Serve static frontend (optional if hosting frontend on Render)
+app.use(express.static('frontend'));
+
+// Orders file path on Render
 const ordersPath = '/tmp/orders.json';
 
 // Load orders
@@ -17,8 +25,7 @@ let orders = [];
 if (fs.existsSync(ordersPath)) {
   try {
     orders = JSON.parse(fs.readFileSync(ordersPath));
-  } catch (err) {
-    console.error('Failed to read orders.json, starting empty:', err);
+  } catch {
     orders = [];
   }
 }
@@ -42,12 +49,12 @@ if (process.env.BOT_TOKEN) {
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.DirectMessages,
-      GatewayIntentBits.MessageContent
+      GatewayIntentBits.MessageContent,
     ],
-    partials: [Partials.Channel]
+    partials: [Partials.Channel],
   });
 
-  client.login(process.env.BOT_TOKEN).catch(err => console.error(err));
+  client.login(process.env.BOT_TOKEN).catch((err) => console.error(err));
 
   client.once('ready', () => {
     console.log(`Bot logged in as ${client.user.tag}`);
@@ -66,15 +73,17 @@ if (process.env.BOT_TOKEN) {
         const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
         if (channel) {
           await channel.send({
-            embeds: [{
-              title: 'New DM Received',
-              color: 0x39ff14,
-              fields: [
-                { name: 'From', value: `${message.author.tag} (${message.author.id})`, inline: true },
-                { name: 'Message', value: message.content || '*No text content*' }
-              ],
-              timestamp: new Date().toISOString()
-            }]
+            embeds: [
+              {
+                title: 'New DM Received',
+                color: 0x39ff14,
+                fields: [
+                  { name: 'From', value: `${message.author.tag} (${message.author.id})`, inline: true },
+                  { name: 'Message', value: message.content || '*No text content*' },
+                ],
+                timestamp: new Date().toISOString(),
+              },
+            ],
           });
           await message.reply('Your message has been received! We will get back to you soon.');
         }
@@ -113,26 +122,14 @@ if (process.env.BOT_TOKEN) {
 }
 
 // API endpoints
-app.use(bodyParser.json());
-app.use(express.static('frontend')); // Serve your index.html folder if in 'frontend'
-
 app.post('/api/order', (req, res) => {
   const { name, email, discord, packageSelected, currency } = req.body;
 
   if (!name || !email || !discord || !packageSelected || !currency) {
-    return res.status(400).json({ success: false, message: 'Missing fields' });
+    return res.status(400).json({ success: false, message: 'Missing fields.' });
   }
 
-  const order = {
-    id: Date.now(),
-    name,
-    email,
-    discord,
-    packageSelected,
-    currency,
-    replied: false
-  };
-
+  const order = { id: Date.now(), name, email, discord, packageSelected, currency, replied: false };
   orders.push(order);
   saveOrders();
 
@@ -145,7 +142,7 @@ app.post('/api/reply', async (req, res) => {
   if (!client || !botReady) return res.status(503).json({ success: false, message: 'Discord bot unavailable.' });
 
   const { orderId, message } = req.body;
-  const order = orders.find(o => o.id === orderId);
+  const order = orders.find((o) => o.id === orderId);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
   try {
