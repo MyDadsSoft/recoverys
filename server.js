@@ -144,7 +144,7 @@ app.post('/api/order', async (req, res) => {
     await sendOrderToDiscord(order);
   }
 
-  res.json({ success: true, message: 'Order received!' });
+  res.json({ success: true, message: 'Order received. Check your Discord for a message from the bot!' });
 });
 
 app.get('/api/orders', (req, res) => res.json(orders));
