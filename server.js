@@ -40,15 +40,19 @@ function saveOrders() {
 
 // API endpoints
 app.post('/api/order', (req, res) => {
+  console.log('Received order POST:', req.body); // << Add this
   const { name, email, discord, packageSelected, currency } = req.body;
   if (!name || !email || !discord || !packageSelected || !currency) {
+    console.log('Missing fields in order:', req.body);
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
   const order = { id: Date.now(), name, email, discord, packageSelected, currency, replied: false };
   orders.push(order);
   saveOrders();
+  console.log('Order saved:', order);
   res.json({ success: true, message: 'Order received!' });
 });
+
 
 app.get('/api/orders', (req, res) => res.json(orders));
 
