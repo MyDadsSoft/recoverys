@@ -1,7 +1,7 @@
 import express from 'express';
 import fs from 'fs';
+import path from 'path';
 import bodyParser from 'body-parser';
-import cors from 'cors';
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -10,22 +10,20 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';
 
-// CORS so Cloudflare Pages can call your API
-app.use(cors());
+// Serve your frontend folder
+app.use(express.static(path.join(process.cwd(), 'frontend')));
 app.use(bodyParser.json());
 
-// Serve static frontend (optional if hosting frontend on Render)
-app.use(express.static('frontend'));
-
-// Orders file path on Render
-const ordersPath = '/tmp/orders.json';
+// Orders JSON path
+const ordersPath = path.join(process.cwd(), 'orders.json');
 
 // Load orders
 let orders = [];
 if (fs.existsSync(ordersPath)) {
   try {
     orders = JSON.parse(fs.readFileSync(ordersPath));
-  } catch {
+  } catch (err) {
+    console.error('Failed to parse orders.json', err);
     orders = [];
   }
 }
@@ -43,61 +41,62 @@ function saveOrders() {
 let client = null;
 let botReady = false;
 
-if (process.env.BOT_TOKEN) {
+if (process.env.BOT_TOKEN && process.env.ORDERS_CHANNEL_ID) {
   client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.DirectMessages,
-      GatewayIntentBits.MessageContent,
+      GatewayIntentBits.MessageContent
     ],
-    partials: [Partials.Channel],
+    partials: [Partials.Channel]
   });
-
-  client.login(process.env.BOT_TOKEN).catch((err) => console.error(err));
 
   client.once('ready', () => {
     console.log(`Bot logged in as ${client.user.tag}`);
     botReady = true;
   });
 
-  const ORDERS_CHANNEL_ID = process.env.ORDERS_CHANNEL_ID || '';
+  client.login(process.env.BOT_TOKEN).catch(err => console.error('Discord login error:', err));
 
-  // Forward DMs to orders channel
-  client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-    if (message.guild) return;
+  const ORDERS_CHANNEL_ID = process.env.ORDERS_CHANNEL_ID;
 
-    if (ORDERS_CHANNEL_ID) {
-      try {
-        const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
-        if (channel) {
-          await channel.send({
-            embeds: [
-              {
-                title: 'New DM Received',
-                color: 0x39ff14,
-                fields: [
-                  { name: 'From', value: `${message.author.tag} (${message.author.id})`, inline: true },
-                  { name: 'Message', value: message.content || '*No text content*' },
-                ],
-                timestamp: new Date().toISOString(),
-              },
-            ],
-          });
-          await message.reply('Your message has been received! We will get back to you soon.');
-        }
-      } catch (err) {
-        console.error('Failed to forward DM:', err.message);
+  // Forward new orders to Discord channel
+  async function sendOrderToDiscord(order) {
+    if (!botReady) return;
+    try {
+      const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
+      if (!channel) {
+        console.error('Orders channel not found');
+        return;
       }
-    }
-  });
 
-  // !reply command in orders channel
+      await channel.send({
+        embeds: [
+          {
+            title: 'New Order Received',
+            color: 0x39ff14,
+            fields: [
+              { name: 'Name', value: order.name, inline: true },
+              { name: 'Email', value: order.email, inline: true },
+              { name: 'Discord ID', value: order.discord, inline: true },
+              { name: 'Package', value: order.packageSelected, inline: true },
+              { name: 'Currency', value: order.currency, inline: true }
+            ],
+            timestamp: new Date().toISOString()
+          }
+        ]
+      });
+    } catch (err) {
+      console.error('Failed to send order to Discord:', err);
+    }
+  }
+
+  // Reply command
   client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (!message.guild) return;
-    if (ORDERS_CHANNEL_ID && message.channel.id !== ORDERS_CHANNEL_ID) return;
+    if (message.channel.id !== ORDERS_CHANNEL_ID) return;
     if (!message.content.startsWith('!reply')) return;
 
     const args = message.content.slice(7).trim().split(' ');
@@ -109,7 +108,6 @@ if (process.env.BOT_TOKEN) {
     try {
       const user = await client.users.fetch(userId).catch(() => null);
       if (!user) return message.reply('User not found.');
-
       await user.send(`Reply from MyDadsSoft Recoverys: ${replyMessage}`);
       message.reply(`Message sent to ${user.tag}`);
     } catch (err) {
@@ -118,20 +116,33 @@ if (process.env.BOT_TOKEN) {
     }
   });
 } else {
-  console.log('BOT_TOKEN not provided, Discord features disabled');
+  console.log('BOT_TOKEN or ORDERS_CHANNEL_ID missing, Discord features disabled');
 }
 
 // API endpoints
-app.post('/api/order', (req, res) => {
+app.post('/api/order', async (req, res) => {
   const { name, email, discord, packageSelected, currency } = req.body;
 
   if (!name || !email || !discord || !packageSelected || !currency) {
-    return res.status(400).json({ success: false, message: 'Missing fields.' });
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
-  const order = { id: Date.now(), name, email, discord, packageSelected, currency, replied: false };
+  const order = {
+    id: Date.now(),
+    name,
+    email,
+    discord,
+    packageSelected,
+    currency,
+    replied: false
+  };
   orders.push(order);
   saveOrders();
+
+  // Send to Discord if possible
+  if (client && botReady) {
+    await sendOrderToDiscord(order);
+  }
 
   res.json({ success: true, message: 'Order received!' });
 });
@@ -142,7 +153,7 @@ app.post('/api/reply', async (req, res) => {
   if (!client || !botReady) return res.status(503).json({ success: false, message: 'Discord bot unavailable.' });
 
   const { orderId, message } = req.body;
-  const order = orders.find((o) => o.id === orderId);
+  const order = orders.find(o => o.id === orderId);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
   try {
