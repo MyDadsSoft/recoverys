@@ -1,0 +1,16 @@
+{
+  "name": "mydadssoft-recoverys",
+  "version": "1.0.0",
+  "description": "GTA V account recovery and boosting site with Discord bot",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "discord.js": "^14.16.0",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.3.1"
+  }
+}
