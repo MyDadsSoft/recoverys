@@ -84,7 +84,7 @@ section {padding:120px 60px;max-width:1100px;margin:0 auto;}
 .card .price {display:block;margin-top:20px;font-size:26px;color:#39ff14;font-weight:700;}
 .price-label {font-size:12px;color:#888;margin-top:5px;}
 
-/* FAQ FIXED */
+/* FAQ */
 .faq-item {
     background:rgba(255,255,255,0.05);
     padding:20px;border-radius:12px;
@@ -99,21 +99,12 @@ section {padding:120px 60px;max-width:1100px;margin:0 auto;}
     font-size:18px;
     cursor:pointer;
 }
-
-/* Hidden FAQ content */
 .faq-answer {
-    max-height:0;
-    overflow:hidden;
-    opacity:0;
-    padding-top:0;
+    max-height:0; overflow:hidden; opacity:0; padding-top:0;
     transition:max-height .4s ease, opacity .3s ease, padding .3s ease;
 }
-
-/* Open FAQ content */
 .faq-item.active .faq-answer {
-    max-height:300px;
-    opacity:1;
-    padding-top:10px;
+    max-height:300px; opacity:1; padding-top:10px;
 }
 
 /* CONTACT */
@@ -146,7 +137,6 @@ footer {text-align:center;padding:40px 20px;background:#020202;margin-top:80px;b
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -171,98 +161,71 @@ footer {text-align:center;padding:40px 20px;background:#020202;margin-top:80px;b
 </section>
 
 <section id="pricing">
-  <div class="section-header">
-    <div class="section-label">Pricing</div>
-    <h2 class="section-title">Our Packages</h2>
-    <p class="section-subtitle">Choose the perfect package for your gaming needs</p>
-  </div>
-
+  <h2 style="color:#39ff14;text-align:center;margin-bottom:40px;">Our Packages</h2>
   <div class="pricing-container">
-    <div class="card" data-price-usd="50">
+    <div class="card" data-package="Modded Heists" data-price="50">
       <div class="card-icon"><i class="fas fa-gem"></i></div>
       <h3>Modded Heists</h3>
       <p>Complete high-level heists with maximum payouts. Safe methods ensuring your account stays protected.</p>
       <span class="price">$50</span>
       <div class="price-label">One-time payment</div>
+      <button class="btn-primary buy-btn">Buy</button>
     </div>
-
-    <div class="card" data-price-usd="25">
+    <div class="card" data-package="RP Boost" data-price="25">
       <div class="card-icon"><i class="fas fa-bolt"></i></div>
       <h3>RP Boost</h3>
       <p>Rapid rank progression to unlock weapons, vehicles, and abilities faster than ever before.</p>
       <span class="price">$25</span>
       <div class="price-label">One-time payment</div>
+      <button class="btn-primary buy-btn">Buy</button>
     </div>
-
-    <div class="card" data-price-usd="60">
+    <div class="card" data-package="All Unlocks" data-price="60">
       <div class="card-icon"><i class="fas fa-unlock"></i></div>
       <h3>All Unlocks</h3>
       <p>Complete access to all vehicles, weapons, clothing, and premium items in the game.</p>
       <span class="price">$60</span>
       <div class="price-label">One-time payment</div>
+      <button class="btn-primary buy-btn">Buy</button>
     </div>
   </div>
 </section>
 
 <section id="faq">
-  <div class="section-header">
-    <div class="section-label">Support</div>
-    <h2 class="section-title">FAQ</h2>
-    <p class="section-subtitle">Frequently asked questions about our services</p>
-  </div>
-
+  <h2 style="color:#39ff14;text-align:center;margin-bottom:40px;">FAQ</h2>
   <div class="faq-item">
     <h4>Is this safe for my account?</h4>
-    <div class="faq-answer"><p>Yes, our methods are designed to minimize detection risk...</p></div>
+    <div class="faq-answer"><p>Yes, our methods are designed to minimize detection risk.</p></div>
   </div>
-
   <div class="faq-item">
     <h4>How long does delivery take?</h4>
-    <div class="faq-answer"><p>Most orders are completed within 24 hours...</p></div>
+    <div class="faq-answer"><p>Most orders are completed within 24 hours.</p></div>
   </div>
-
   <div class="faq-item">
     <h4>How do I contact support?</h4>
-    <div class="faq-answer"><p>Reach out via Discord using the username you provide...</p></div>
-  </div>
-
-  <div class="faq-item">
-    <h4>What payment methods do you accept?</h4>
-    <div class="faq-answer"><p>We accept PayPal, CashApp, crypto, and more...</p></div>
+    <div class="faq-answer"><p>Reach out via Discord using the numeric ID you provide when ordering.</p></div>
   </div>
 </section>
 
 <section id="contact">
-  <div class="section-header">
-    <div class="section-label">Get Started</div>
-    <h2 class="section-title">Place Your Order</h2>
-    <p class="section-subtitle">Fill out the form below and we'll contact you on Discord</p>
-  </div>
-
+  <h2 style="color:#39ff14;text-align:center;margin-bottom:20px;">Place Your Order</h2>
   <form class="contact-form" id="orderForm">
-    <div class="form-group"><label>Your Name</label><input type="text" name="name" required></div>
-    <div class="form-group"><label>Email Address</label><input type="email" name="email" required></div>
-    <div class="form-group"><label>Discord Username</label><input type="text" name="discord" required></div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Package</label>
-        <select name="package" required>
-          <option value="">Select Package</option>
-          <option value="Modded Heists - 50">Modded Heists - $50</option>
-          <option value="RP Boost - 25">RP Boost - $25</option>
-          <option value="All Unlocks - 60">All Unlocks - $60</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Currency</label>
-        <select id="currency" required>
-          <option value="USD" selected>USD</option>
-          <option value="EUR">EUR</option>
-          <option value="GBP">GBP</option>
-        </select>
-      </div>
+    <div class="form-group"><label>Name</label><input type="text" name="name" required></div>
+    <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+    <div class="form-group"><label>Discord ID</label><input type="text" name="discord" placeholder="Enter numeric Discord ID" required></div>
+    <div class="form-group"><label>Package</label>
+      <select name="packageSelected" required>
+        <option value="">Select Package</option>
+        <option value="Modded Heists">Modded Heists</option>
+        <option value="RP Boost">RP Boost</option>
+        <option value="All Unlocks">All Unlocks</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Currency</label>
+      <select name="currency" required>
+        <option value="USD" selected>USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+      </select>
     </div>
     <button type="submit">Place Order</button>
   </form>
@@ -273,12 +236,47 @@ footer {text-align:center;padding:40px 20px;background:#020202;margin-top:80px;b
   <p>&copy; 2025 MyDadsSoft's Recoverys. All rights reserved.</p>
 </footer>
 
-<!-- WORKING JS -->
 <script>
 // FAQ Toggle
 document.querySelectorAll('.faq-item').forEach(item => {
   item.querySelector('h4').addEventListener('click', () => {
     item.classList.toggle('active');
+  });
+});
+
+// Order Form Submission
+document.getElementById('orderForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData.entries());
+
+  if (!/^\d+$/.test(data.discord)) {
+    alert('Please enter a valid numeric Discord ID.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    alert(result.message);
+    e.target.reset();
+  } catch (err) {
+    console.error(err);
+    alert('Failed to submit order. Try again later.');
+  }
+});
+
+// Buy buttons fill form
+document.querySelectorAll('.buy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const card = btn.closest('.card');
+    const packageName = card.getAttribute('data-package');
+    document.querySelector('select[name="packageSelected"]').value = packageName;
+    document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
   });
 });
 </script>
