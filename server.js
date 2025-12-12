@@ -94,12 +94,30 @@ if (process.env.BOT_TOKEN) {
   console.log('BOT_TOKEN not provided, Discord features disabled');
 }
 
+// ---------- PRICE LIST ----------
+const pricesUSD = {
+  'Modded Heists': 50,
+  'RP Boost': 25,
+  'All Unlocks': 60
+};
+
+// Example currency rates (you can update or fetch dynamically)
+const currencyRates = {
+  USD: 1,
+  EUR: 0.95,
+  GBP: 0.82
+};
+
 // ---------- API ENDPOINTS ----------
 app.post('/api/order', async (req, res) => {
   const { name, email, discord, packageSelected, currency } = req.body;
   if (!name || !email || !discord || !packageSelected || !currency) {
     return res.status(400).json({ success: false, message: 'Missing fields in order.' });
   }
+
+  // Convert price
+  const priceUSD = pricesUSD[packageSelected] || 0;
+  const convertedPrice = (priceUSD * (currencyRates[currency] || 1)).toFixed(2);
 
   const order = {
     id: Date.now(),
@@ -108,6 +126,7 @@ app.post('/api/order', async (req, res) => {
     discord,
     packageSelected,
     currency,
+    price: convertedPrice,
     replied: false
   };
 
@@ -128,7 +147,7 @@ app.post('/api/order', async (req, res) => {
               { name: 'Email', value: email, inline: true },
               { name: 'Discord ID', value: discord, inline: true },
               { name: 'Package', value: packageSelected, inline: true },
-              { name: 'Currency', value: currency, inline: true },
+              { name: 'Price', value: `${convertedPrice} ${currency}`, inline: true },
               { name: 'Order ID', value: `${order.id}`, inline: true }
             ],
             timestamp: new Date().toISOString()
@@ -140,7 +159,7 @@ app.post('/api/order', async (req, res) => {
     }
   }
 
-  res.json({ success: true, message: 'Order received!' });
+  res.json({ success: true, message: `Order received! Total: ${convertedPrice} ${currency}` });
 });
 
 app.get('/api/orders', (req, res) => res.json(orders));
