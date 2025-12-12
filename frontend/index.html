@@ -47,6 +47,53 @@ section {padding:120px 60px;max-width:1100px;margin:0 auto;}
 .contact-form button:hover {background:#00cc44;}
 footer {text-align:center;padding:40px 20px;background:#020202;margin-top:80px;border-top:1px solid rgba(57,255,20,0.2);}
 .footer-logo {font-family:'Orbitron';font-size:20px;background:linear-gradient(135deg,#39ff14,#00ff88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
+  /* Animated neon cyber background */
+body {
+  background: radial-gradient(circle at 20% 20%, #0a0a0a, #000000 60%),
+              linear-gradient(135deg, #0f0f0f, #0a1a0a, #000000);
+  background-size: 300% 300%;
+  animation: bgMove 12s ease-in-out infinite alternate;
+}
+
+@keyframes bgMove {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+  100% {
+    background-position: 100% 0%;
+  }
+}
+
+/* Soft floating particles */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(circle, rgba(57,255,20,0.15) 3px, transparent 3px),
+    radial-gradient(circle, rgba(0,255,140,0.12) 2px, transparent 2px),
+    radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 200px 200px, 300px 300px, 400px 400px;
+  animation: starsFloat 25s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes starsFloat {
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-200px);
+  }
+}
+
 </style>
 </head>
 
@@ -78,34 +125,36 @@ footer {text-align:center;padding:40px 20px;background:#020202;margin-top:80px;b
 
   <div class="pricing-container">
 
-    <div class="card" data-package="Modded Heists" data-price="50">
+    <div class="card" data-package="Modded Heists" data-price="20">
       <div class="card-icon"><i class="fas fa-gem"></i></div>
       <h3>Modded Heists</h3>
       <p>Complete high-level heists with maximum payouts. Safe methods ensuring your account stays protected.</p>
-      <span class="price">$50</span>
+      <span class="price">20 USD</span>
       <div class="price-label">One-time payment</div>
       <button class="btn-primary buy-btn">Buy</button>
     </div>
 
-    <div class="card" data-package="RP Boost" data-price="25">
+    <div class="card" data-package="RP Boost" data-price="10">
       <div class="card-icon"><i class="fas fa-bolt"></i></div>
       <h3>RP Boost</h3>
       <p>Rapid rank progression to unlock weapons, vehicles, and abilities faster than ever before.</p>
-      <span class="price">$25</span>
+      <span class="price">10 USD</span>
       <div class="price-label">One-time payment</div>
       <button class="btn-primary buy-btn">Buy</button>
     </div>
 
-    <div class="card" data-package="All Unlocks" data-price="60">
+    <div class="card" data-package="All Unlocks" data-price="25">
       <div class="card-icon"><i class="fas fa-unlock"></i></div>
       <h3>All Unlocks</h3>
       <p>Complete access to all vehicles, weapons, clothing, and premium items in the game.</p>
-      <span class="price">$60</span>
+      <span class="price">25 USD</span>
       <div class="price-label">One-time payment</div>
       <button class="btn-primary buy-btn">Buy</button>
     </div>
 
+  </div>
 </section>
+
 
 <section id="faq">
   <h2 style="color:#39ff14;text-align:center;margin-bottom:40px;">FAQ</h2>
