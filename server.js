@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import bodyParser from 'body-parser';
-import cors from 'cors'; // <-- ADD THIS
+import cors from 'cors';
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -13,13 +13,7 @@ const HOST = '0.0.0.0';
 
 // ---------- MIDDLEWARE ----------
 app.use(bodyParser.json());
-
-// Enable CORS so your frontend can call this API
-app.use(cors({
-  origin: '*' // you can replace '*' with your Cloudflare Pages URL for more security
-}));
-
-// Serve frontend folder
+app.use(cors({ origin: '*' }));
 app.use(express.static('frontend'));
 
 // ---------- ORDERS HANDLING ----------
@@ -28,7 +22,6 @@ if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 
 const ordersPath = path.join(dataDir, 'orders.json');
 
-// Load existing orders
 let orders = [];
 if (fs.existsSync(ordersPath)) {
   try {
@@ -39,7 +32,6 @@ if (fs.existsSync(ordersPath)) {
   }
 }
 
-// Save orders helper
 function saveOrders() {
   try {
     fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2));
@@ -98,37 +90,12 @@ if (process.env.BOT_TOKEN) {
       }
     }
   });
-
-  // !reply command in orders channel
-  client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-    if (!message.guild) return;
-    if (ORDERS_CHANNEL_ID && message.channel.id !== ORDERS_CHANNEL_ID) return;
-    if (!message.content.startsWith('!reply')) return;
-
-    const args = message.content.slice(7).trim().split(' ');
-    const userId = args.shift();
-    const replyMessage = args.join(' ');
-
-    if (!userId || !replyMessage) return message.reply('Usage: !reply <UserID> Your message');
-
-    try {
-      const user = await client.users.fetch(userId).catch(() => null);
-      if (!user) return message.reply('User not found.');
-
-      await user.send(`Reply from MyDadsSoft Recoverys: ${replyMessage}`);
-      message.reply(`Message sent to ${user.tag}`);
-    } catch (err) {
-      console.error(err);
-      message.reply('Failed to send message. User may not allow DMs.');
-    }
-  });
 } else {
   console.log('BOT_TOKEN not provided, Discord features disabled');
 }
 
 // ---------- API ENDPOINTS ----------
-app.post('/api/order', (req, res) => {
+app.post('/api/order', async (req, res) => {
   const { name, email, discord, packageSelected, currency } = req.body;
   if (!name || !email || !discord || !packageSelected || !currency) {
     return res.status(400).json({ success: false, message: 'Missing fields in order.' });
@@ -146,6 +113,33 @@ app.post('/api/order', (req, res) => {
 
   orders.push(order);
   saveOrders();
+
+  // Send order to Discord channel if bot is ready
+  if (client && botReady && process.env.ORDERS_CHANNEL_ID) {
+    try {
+      const channel = await client.channels.fetch(process.env.ORDERS_CHANNEL_ID);
+      if (channel) {
+        await channel.send({
+          embeds: [{
+            title: 'New Order Received',
+            color: 0x39ff14,
+            fields: [
+              { name: 'Name', value: name, inline: true },
+              { name: 'Email', value: email, inline: true },
+              { name: 'Discord ID', value: discord, inline: true },
+              { name: 'Package', value: packageSelected, inline: true },
+              { name: 'Currency', value: currency, inline: true },
+              { name: 'Order ID', value: `${order.id}`, inline: true }
+            ],
+            timestamp: new Date().toISOString()
+          }]
+        });
+      }
+    } catch (err) {
+      console.error('Failed to send order to Discord channel:', err);
+    }
+  }
+
   res.json({ success: true, message: 'Order received!' });
 });
 
