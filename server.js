@@ -65,9 +65,9 @@ if (process.env.BOT_TOKEN) {
   // Forward DMs to orders channel
   client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
-    if (message.guild) return; // only DMs
 
-    if (ORDERS_CHANNEL_ID) {
+    // Handle DMs
+    if (!message.guild && ORDERS_CHANNEL_ID) {
       try {
         const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
         if (channel) {
@@ -87,6 +87,34 @@ if (process.env.BOT_TOKEN) {
       } catch (err) {
         console.error('Failed to forward DM:', err.message);
       }
+      return;
+    }
+
+    // Handle !reply in orders channel
+    if (message.guild && message.channel.id === ORDERS_CHANNEL_ID) {
+      const [command, userId, ...msgParts] = message.content.trim().split(' ');
+      if (command !== '!reply') return;
+      const replyMessage = msgParts.join(' ');
+      if (!userId || !replyMessage) return message.reply('Usage: !reply <UserID> Your message');
+
+      try {
+        const user = await client.users.fetch(userId).catch(() => null);
+        if (!user) return message.reply('User not found.');
+
+        await user.send(`Reply from MyDadsSoft Recoverys: ${replyMessage}`);
+
+        // Update orders.json if the user exists in orders
+        const order = orders.find(o => o.discord === userId && !o.replied);
+        if (order) {
+          order.replied = true;
+          saveOrders();
+        }
+
+        message.reply(`Message sent to ${user.tag}`);
+      } catch (err) {
+        console.error(err);
+        message.reply('Failed to send message. User may not allow DMs.');
+      }
     }
   });
 } else {
@@ -95,9 +123,9 @@ if (process.env.BOT_TOKEN) {
 
 // ---------- PRICE LIST ----------
 const pricesUSD = {
-  'Modded Heists': 20,   // lowered from 50
-  'RP Boost': 10,        // lowered from 25
-  'All Unlocks': 25      // lowered from 60
+  'Modded Heists': 20,
+  'RP Boost': 10,
+  'All Unlocks': 25
 };
 
 const currencyRates = {
@@ -113,7 +141,6 @@ app.post('/api/order', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Missing fields in order.' });
   }
 
-  // Convert price
   const priceUSD = pricesUSD[packageSelected] || 0;
   const convertedPrice = (priceUSD * (currencyRates[currency] || 1)).toFixed(2);
 
@@ -131,7 +158,6 @@ app.post('/api/order', async (req, res) => {
   orders.push(order);
   saveOrders();
 
-  // Send order to Discord channel if bot is ready
   if (client && botReady && process.env.ORDERS_CHANNEL_ID) {
     try {
       const channel = await client.channels.fetch(process.env.ORDERS_CHANNEL_ID);
