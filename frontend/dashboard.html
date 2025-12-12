@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard - MyDadsSoft's Recoverys</title>
+<style>
+body { font-family: Arial, sans-serif; background:#0a0a0a; color:#fff; padding:20px; }
+table { width:100%; border-collapse: collapse; margin-top:20px; }
+th, td { padding:10px; border:1px solid #444; text-align:left; }
+button { padding:5px 10px; background:#39ff14; border:none; cursor:pointer; color:#000; }
+textarea { width:100%; height:50px; margin-top:5px; background:#222; color:#fff; border:none; border-radius:5px; }
+</style>
+</head>
+<body>
+<h1>Orders Dashboard</h1>
+<table id="ordersTable">
+<thead>
+<tr><th>Name</th><th>Email</th><th>Discord</th><th>Package</th><th>Currency</th><th>Reply</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script>
+async function loadOrders() {
+  const res = await fetch('/api/orders');
+  const orders = await res.json();
+  const tbody = document.querySelector('#ordersTable tbody');
+  tbody.innerHTML = '';
+  orders.forEach(order => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${order.name}</td>
+      <td>${order.email}</td>
+      <td>${order.discord}</td>
+      <td>${order.packageSelected}</td>
+      <td>${order.currency}</td>
+      <td>
+        <textarea id="msg-${order.id}" placeholder="Type your reply..."></textarea>
+        <button onclick="sendReply(${order.id})">Send</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function sendReply(orderId) {
+  const msg = document.getElementById(`msg-${orderId}`).value;
+  if (!msg) return alert('Type a message first.');
+  const res = await fetch('/api/reply', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ orderId, message: msg })
+  });
+  const data = await res.json();
+  alert(data.message);
+  loadOrders();
+}
+
+loadOrders();
+</script>
+</body>
+</html>
