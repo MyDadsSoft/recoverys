@@ -15,7 +15,7 @@ app.use(express.static('frontend'));
 app.use(bodyParser.json());
 
 // Use absolute path for orders.json
-const ordersPath = path.join(process.cwd(), 'orders.json');
+const ordersPath = '/tmp/orders.json';
 
 // Load orders
 let orders = [];
@@ -26,6 +26,16 @@ if (fs.existsSync(ordersPath)) {
     orders = [];
   }
 }
+
+// Save orders
+function saveOrders() {
+  try {
+    fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2));
+  } catch (err) {
+    console.error('Failed to save orders.json', err);
+  }
+}
+
 
 function saveOrders() {
   try {
