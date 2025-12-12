@@ -21,7 +21,6 @@ const dataDir = path.join(process.cwd(), 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 
 const ordersPath = path.join(dataDir, 'orders.json');
-
 let orders = [];
 if (fs.existsSync(ordersPath)) {
   try {
@@ -96,12 +95,11 @@ if (process.env.BOT_TOKEN) {
 
 // ---------- PRICE LIST ----------
 const pricesUSD = {
-  'Modded Heists': 50,
-  'RP Boost': 25,
-  'All Unlocks': 60
+  'Modded Heists': 20,   // lowered from 50
+  'RP Boost': 10,        // lowered from 25
+  'All Unlocks': 25      // lowered from 60
 };
 
-// Example currency rates (you can update or fetch dynamically)
 const currencyRates = {
   USD: 1,
   EUR: 0.95,
