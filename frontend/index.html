@@ -478,13 +478,6 @@
     </div>
 
     <div class="faq-item">
-      <h4>Why do I need to give a Discord ID?</h4>
-      <div class="faq-answer">
-        <p>So we can contact you about your order.</p>
-      </div>
-    </div>
-
-    <div class="faq-item">
       <h4>Is my information kept safe?</h4>
       <div class="faq-answer">
         <p>Yes. No data is stored after completion.</p>
@@ -532,7 +525,7 @@
   </footer>
 
   <!-- Floating Discord Button -->
-  <a href="#" class="discord-float" onclick="openDiscordForm();">
+  <a href="https://discord.gg/eaMn5YhX6J" class="discord-float" target="_blank">
     <i class="fab fa-discord"></i>
   </a>
 
@@ -545,49 +538,16 @@
     // Buy buttons scroll to form
     document.querySelectorAll('.buy-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const card = btn.closest('.card');
-        const packageName = card.getAttribute('data-package');
-        document.getElementById('packageSelect').value = packageName;
-        document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('contact').scrollIntoView({behavior:'smooth'});
       });
     });
 
-    // Order form submit
-    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+    // Form submission (stub)
+    document.getElementById('orderForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-      if (!/^\d{18}$/.test(data.discord)) {
-        alert('Please enter a valid 18-digit Discord ID.');
-        return;
-      }
-      try {
-        const res = await fetch('https://recoverys.onrender.com/api/order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        alert(result.message);
-        e.target.reset();
-      } catch (err) {
-        alert('Failed to submit order. Try again later.');
-        console.error(err);
-      }
+      alert("Order placed successfully!");
     });
-
-    // Discord button function
-    function openDiscordForm() {
-      const discordID = prompt("Enter your 18-digit Discord ID:");
-      if (discordID && /^\d{18}$/.test(discordID)) {
-        document.querySelector('input[name="discord"]').value = discordID;
-        document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
-      } else {
-        alert("Please enter a valid 18-digit Discord ID.");
-      }
-    }
   </script>
-
 </body>
 
 </html>
