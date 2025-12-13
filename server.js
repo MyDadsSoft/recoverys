@@ -16,11 +16,13 @@ app.use(bodyParser.json());
 app.use(cors({ origin: '*' }));
 app.use(express.static('frontend'));
 
-// ---------- ORDERS HANDLING ----------
+// ---------- DATA HANDLING ----------
 const dataDir = path.join(process.cwd(), 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 
 const ordersPath = path.join(dataDir, 'orders.json');
+const reviewsPath = path.join(dataDir, 'reviews.json');
+
 let orders = [];
 if (fs.existsSync(ordersPath)) {
   try {
@@ -31,12 +33,35 @@ if (fs.existsSync(ordersPath)) {
   }
 }
 
+let reviews = [];
+if (fs.existsSync(reviewsPath)) {
+  try {
+    reviews = JSON.parse(fs.readFileSync(reviewsPath));
+  } catch (err) {
+    console.error('Failed to parse reviews.json', err);
+    reviews = [];
+  }
+}
+
 function saveOrders() {
   try {
     fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2));
   } catch (err) {
     console.error('Failed to save orders.json', err);
   }
+}
+
+function saveReviews() {
+  try {
+    fs.writeFileSync(reviewsPath, JSON.stringify(reviews, null, 2));
+  } catch (err) {
+    console.error('Failed to save reviews.json', err);
+  }
+}
+
+function sanitize(text, max) {
+  if (typeof text !== 'string') return '';
+  return text.trim().slice(0, max).replace(/[<>]/g, '');
 }
 
 // ---------- DISCORD BOT ----------
@@ -62,11 +87,10 @@ if (process.env.BOT_TOKEN) {
 
   const ORDERS_CHANNEL_ID = process.env.ORDERS_CHANNEL_ID || '';
 
-  // Forward DMs to orders channel
   client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
-    // Handle DMs
+    // Forward DMs
     if (!message.guild && ORDERS_CHANNEL_ID) {
       try {
         const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
@@ -103,7 +127,6 @@ if (process.env.BOT_TOKEN) {
 
         await user.send(`Reply from MyDadsSoft Recoverys: ${replyMessage}`);
 
-        // Update orders.json if the user exists in orders
         const order = orders.find(o => o.discord === userId && !o.replied);
         if (order) {
           order.replied = true;
@@ -134,7 +157,7 @@ const currencyRates = {
   GBP: 0.82
 };
 
-// ---------- API ENDPOINTS ----------
+// ---------- ORDERS API ----------
 app.post('/api/order', async (req, res) => {
   const { name, email, discord, packageSelected, currency } = req.body;
   if (!name || !email || !discord || !packageSelected || !currency) {
@@ -208,6 +231,37 @@ app.post('/api/reply', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to send DM.' });
   }
 });
+
+// ---------- REVIEWS API ----------
+app.get('/api/reviews', (_req, res) => {
+  res.json([...reviews].reverse().slice(0, 50));
+});
+
+app.post('/api/reviews', (req, res) => {
+  const name = sanitize(req.body.name, 40);
+  const comment = sanitize(req.body.comment, 800);
+  const rating = Number(req.body.rating);
+
+  if (!name || !comment || !Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return res.status(400).json({ error: "Invalid review data" });
+  }
+
+  const review = {
+    id: Date.now(),
+    name,
+    rating,
+    comment,
+    created_at: new Date().toISOString()
+  };
+
+  reviews.push(review);
+  saveReviews();
+
+  res.status(201).json({ ok: true });
+});
+
+// ---------- HEALTH CHECK ----------
+app.get('/', (_req, res) => res.send('Recoverys API is running'));
 
 // ---------- START SERVER ----------
 app.listen(PORT, HOST, () => console.log(`Server running at http://${HOST}:${PORT}`));
