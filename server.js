@@ -13,7 +13,9 @@ const HOST = '0.0.0.0';
 
 // ---------- MIDDLEWARE ----------
 app.use(bodyParser.json());
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  origin: "https://recoverys.pages.dev/"
+}));
 app.use(express.static('frontend'));
 
 // ---------- DATA HANDLING ----------
