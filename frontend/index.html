@@ -20,8 +20,6 @@ body {
   position: relative;
   z-index: 0;
 }
-
-/* Floating particles */
 body::before {
   content:"";
   position: fixed;
@@ -36,19 +34,9 @@ body::before {
   opacity:.3;
   z-index:-1;
 }
+@keyframes bgMove {0%{background-position:0% 0%}50%{background-position:50% 100%}100%{background-position:100% 0%;}}
+@keyframes starsFloat {0%{transform:translateY(0);}100%{transform:translateY(-200px);}}
 
-@keyframes bgMove {
-  0% { background-position:0% 0%; }
-  50% { background-position:50% 100%; }
-  100% { background-position:100% 0%; }
-}
-
-@keyframes starsFloat {
-  0% {transform:translateY(0);}
-  100% {transform:translateY(-200px);}
-}
-
-/* Header */
 header{
   position: fixed;
   top:0; width:100%;
@@ -82,7 +70,6 @@ nav a{
 }
 nav a:hover{color:#fff; background: rgba(57,255,20,.1);}
 
-/* Sections */
 section{
   padding:120px 60px;
   max-width:1100px;
@@ -92,7 +79,6 @@ section{
   z-index: 1;
 }
 
-/* Hero */
 .hero{
   min-height:100vh;
   padding-top:150px;
@@ -152,7 +138,6 @@ section{
 }
 .btn-secondary:hover {border-color:#39ff14;color:#39ff14;}
 
-/* Pricing */
 .pricing-container{
   display:grid;
   grid-template-columns:repeat(auto-fit, minmax(300px,1fr));
@@ -175,7 +160,6 @@ section{
 .card .price {display:block;margin-top:20px;font-size:26px;color:#39ff14;font-weight:700;}
 .price-label {font-size:12px;color:#888;margin-top:5px;}
 
-/* FAQ */
 .faq-item{
   background:rgba(255,255,255,0.05);
   padding:20px;
@@ -190,7 +174,6 @@ section{
 .faq-item.active .faq-answer {max-height:300px; opacity:1; padding-top:10px;}
 .faq-item:hover {border-color:#39ff14;}
 
-/* Contact */
 .contact-form{
   background:rgba(255,255,255,0.05);
   border:1px solid rgba(57,255,20,0.2);
@@ -221,7 +204,6 @@ section{
 }
 .contact-form button:hover {background:#00cc44;}
 
-/* Footer */
 footer{
   text-align:center;
   padding:40px 20px;
@@ -238,7 +220,6 @@ footer{
   -webkit-text-fill-color:transparent;
 }
 
-/* Floating Discord Button */
 .discord-float{
   position:fixed;
   bottom:25px;
@@ -258,7 +239,7 @@ footer{
   animation: discordBob 2.2s ease-in-out infinite;
 }
 .discord-float:hover{transform:scale(1.1);}
-@keyframes discordBob {0%{transform:translateY(0);} 50%{transform:translateY(-8px);} 100%{transform:translateY(0);}}
+@keyframes discordBob {0%{transform:translateY(0);}50%{transform:translateY(-8px);}100%{transform:translateY(0);}}
 </style>
 </head>
 <body>
@@ -313,13 +294,45 @@ footer{
 
 <section id="faq">
   <h2 style="text-align:center;color:#39ff14;margin-bottom:40px;">FAQ</h2>
+  
   <div class="faq-item">
     <h4>Is this safe?</h4>
-    <div class="faq-answer"><p>Yes, low-risk methods.</p></div>
+    <div class="faq-answer"><p>Yes. We use low-risk methods to avoid detection.</p></div>
   </div>
+  
+  <div class="faq-item">
+    <h4>Is this safe for my account?</h4>
+    <div class="faq-answer"><p>Yes, our methods are designed to minimize detection risk.</p></div>
+  </div>
+  
   <div class="faq-item">
     <h4>How long does delivery take?</h4>
-    <div class="faq-answer"><p>Most orders completed within 24 hours.</p></div>
+    <div class="faq-answer"><p>Most orders are completed within 24 hours.</p></div>
+  </div>
+  
+  <div class="faq-item">
+    <h4>What platform do you support?</h4>
+    <div class="faq-answer"><p>Only Rockstar Games Launcher accounts are supported.</p></div>
+  </div>
+  
+  <div class="faq-item">
+    <h4>Do you support Steam or Epic Games?</h4>
+    <div class="faq-answer"><p>No. Steam & Epic Games orders will be denied.</p></div>
+  </div>
+  
+  <div class="faq-item">
+    <h4>Why do I need to give a Discord ID?</h4>
+    <div class="faq-answer"><p>So we can contact you about your order.</p></div>
+  </div>
+  
+  <div class="faq-item">
+    <h4>Is my information kept safe?</h4>
+    <div class="faq-answer"><p>Yes. No data is stored after completion.</p></div>
+  </div>
+  
+  <div class="faq-item">
+    <h4>Why do I need to give a Discord User ID?</h4>
+    <div class="faq-answer"><p>We require your 18-digit Discord User ID so we can contact you.</p></div>
   </div>
 </section>
 
@@ -353,18 +366,15 @@ footer{
   <p>&copy; 2025 MyDadsSoft's Recoverys. All rights reserved.</p>
 </footer>
 
-<!-- Floating Discord Button -->
 <a href="#" class="discord-float" onclick="openDiscordForm();">
   <i class="fab fa-discord"></i>
 </a>
 
 <script>
-// FAQ toggle
 document.querySelectorAll('.faq-item h4').forEach(h => {
   h.onclick = () => h.parentElement.classList.toggle('active');
 });
 
-// Buy buttons scroll to form
 document.querySelectorAll('.buy-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const card = btn.closest('.card');
@@ -374,7 +384,6 @@ document.querySelectorAll('.buy-btn').forEach(btn => {
   });
 });
 
-// Order form submit
 document.getElementById('orderForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const formData = new FormData(e.target);
@@ -392,7 +401,6 @@ document.getElementById('orderForm').addEventListener('submit', async (e)=>{
   } catch(err){ alert('Failed to submit order. Try again later.'); console.error(err);}
 });
 
-// Discord button function
 function openDiscordForm(){
   const discordID = prompt("Enter your 18-digit Discord ID:");
   if(discordID && /^\d{18}$/.test(discordID)){
@@ -403,5 +411,6 @@ function openDiscordForm(){
   }
 }
 </script>
+
 </body>
 </html>
