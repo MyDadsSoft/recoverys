@@ -476,7 +476,7 @@
         <p>No. Steam & Epic Games orders will be denied.</p>
       </div>
     </div>
-
+    
     <div class="faq-item">
       <h4>Is my information kept safe?</h4>
       <div class="faq-answer">
@@ -532,20 +532,37 @@
   <script>
     // FAQ toggle
     document.querySelectorAll('.faq-item h4').forEach(h => {
-      h.onclick = () => h.parentElement.classList.toggle('active');
-    });
-
-    // Buy buttons scroll to form
-    document.querySelectorAll('.buy-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('contact').scrollIntoView({behavior:'smooth'});
+      h.addEventListener('click', () => {
+        const faqItem = h.parentElement;
+        faqItem.classList.toggle('active');
       });
     });
 
-    // Form submission (stub)
-    document.getElementById('orderForm').addEventListener('submit', (e) => {
+    // Order form submission
+    document.getElementById('orderForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      alert("Order placed successfully!");
+      // Get form data
+      const formData = new FormData(this);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
+
+      // Send data to webhook (Replace with your webhook URL)
+      fetch('YOUR_WEBHOOK_URL', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: `New Order:\nName: ${data.name}\nEmail: ${data.email}\nDiscord ID: ${data.discord}\nPackage: ${data.packageSelected}\nCurrency: ${data.currency}`
+        })
+      }).then(response => {
+        if (response.ok) {
+          alert('Your order has been placed!');
+          this.reset(); // Reset the form
+        } else {
+          alert('There was an error placing your order. Please try again later.');
+        }
+      });
     });
   </script>
 </body>
