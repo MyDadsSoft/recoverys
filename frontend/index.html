@@ -1,261 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyDadsSoft' Recoverys</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyDadsSoft' Recoverys</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+    * {margin:0; padding:0; box-sizing:border-box;}
+    body { font-family:'Inter',sans-serif; color:#fff; overflow-x:hidden; background: radial-gradient(circle at 20% 20%, #0a0a0a, #000000 60%), linear-gradient(135deg, #0f0f0f, #0a1a0a, #000000); background-size:300% 300%; animation:bgMove 12s ease-in-out infinite alternate; position: relative; z-index: 0; }
+    body::before { content:""; position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; background-image: radial-gradient(circle, rgba(57,255,20,.15) 3px, transparent 3px), radial-gradient(circle, rgba(0,255,140,.12) 2px, transparent 2px), radial-gradient(circle, rgba(255,255,255,.08) 1px, transparent 1px); background-size:200px 200px,300px 300px,400px 400px; animation:starsFloat 25s linear infinite; opacity:.3; z-index:-1; }
+    @keyframes bgMove {0%{background-position:0% 0%}50%{background-position:50% 100%}100%{background-position:100% 0%;}}
+    @keyframes starsFloat {0%{transform:translateY(0);}100%{transform:translateY(-200px);}}
 
-* {margin:0; padding:0; box-sizing:border-box;}
-body {
-  font-family:'Inter',sans-serif;
-  color:#fff;
-  overflow-x:hidden;
-  background: radial-gradient(circle at 20% 20%, #0a0a0a, #000000 60%), linear-gradient(135deg, #0f0f0f, #0a1a0a, #000000);
-  background-size:300% 300%;
-  animation:bgMove 12s ease-in-out infinite alternate;
-  position: relative;
-  z-index: 0;
-}
-body::before {
-  content:"";
-  position: fixed;
-  top:0; left:0; width:100%; height:100%;
-  pointer-events:none;
-  background-image:
-    radial-gradient(circle, rgba(57,255,20,.15) 3px, transparent 3px),
-    radial-gradient(circle, rgba(0,255,140,.12) 2px, transparent 2px),
-    radial-gradient(circle, rgba(255,255,255,.08) 1px, transparent 1px);
-  background-size:200px 200px,300px 300px,400px 400px;
-  animation:starsFloat 25s linear infinite;
-  opacity:.3;
-  z-index:-1;
-}
-@keyframes bgMove {0%{background-position:0% 0%}50%{background-position:50% 100%}100%{background-position:100% 0%;}}
-@keyframes starsFloat {0%{transform:translateY(0);}100%{transform:translateY(-200px);}}
+    header{
+      position: fixed;
+      top:0; width:100%;
+      padding:20px 60px;
+      background:rgba(5,5,5,.9);
+      backdrop-filter:blur(20px);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:1px solid rgba(57,255,20,.2);
+      z-index:1000;
+    }
+    header h1{
+      font-family:'Orbitron',sans-serif;
+      font-weight:900;
+      font-size:22px;
+      background:linear-gradient(135deg,#39ff14,#00ff88);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      letter-spacing:2px;
+    }
+    nav{display:flex; gap:10px;}
+    nav a{
+      padding:10px 20px;
+      color:#aaa;
+      font-weight:500;
+      font-size:14px;
+      text-decoration:none;
+      border-radius:8px;
+      transition:.3s;
+    }
+    nav a:hover{color:#fff; background: rgba(57,255,20,.1);}
 
-header{
-  position: fixed;
-  top:0; width:100%;
-  padding:20px 60px;
-  background:rgba(5,5,5,.9);
-  backdrop-filter:blur(20px);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid rgba(57,255,20,.2);
-  z-index:1000;
-}
-header h1{
-  font-family:'Orbitron',sans-serif;
-  font-weight:900;
-  font-size:22px;
-  background:linear-gradient(135deg,#39ff14,#00ff88);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  letter-spacing:2px;
-}
-nav{display:flex; gap:10px;}
-nav a{
-  padding:10px 20px;
-  color:#aaa;
-  font-weight:500;
-  font-size:14px;
-  text-decoration:none;
-  border-radius:8px;
-  transition:.3s;
-}
-nav a:hover{color:#fff; background: rgba(57,255,20,.1);}
+    section{
+      padding:120px 60px;
+      max-width:1100px;
+      margin:0 auto;
+      background: transparent !important;
+      position: relative;
+      z-index: 1;
+    }
 
-section{
-  padding:120px 60px;
-  max-width:1100px;
-  margin:0 auto;
-  background: transparent !important;
-  position: relative;
-  z-index: 1;
-}
+    .hero{
+      min-height:100vh;
+      padding-top:150px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-badge{
+      display:inline-block;
+      padding:8px 20px;
+      background:rgba(57,255,20,0.1);
+      border:1px solid rgba(57,255,20,0.3);
+      border-radius:50px;
+      color:#39ff14;
+      font-size:12px;
+      letter-spacing:2px;
+      margin-bottom:25px;
+    }
+    .hero h2{
+      font-family:'Orbitron'; font-weight:900;
+      font-size:clamp(36px,6vw,72px);
+      background:linear-gradient(135deg,#fff,#39ff14,#00ff88);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .hero p{
+      color:#888;
+      margin:20px auto 40px;
+      max-width:600px;
+      font-size:18px;
+    }
+    .hero-buttons{
+      display:flex; gap:15px; justify-content:center; flex-wrap:wrap;
+    }
+    .btn-primary{
+      padding:16px 40px;
+      background:#39ff14;
+      border:none;
+      border-radius:12px;
+      font-weight:700;
+      color:#000;
+      cursor:pointer;
+      transition:.3s;
+    }
+    .btn-primary:hover {transform:translateY(-3px);}
+    .btn-secondary{
+      padding:16px 40px;
+      background:transparent;
+      border:2px solid rgba(255,255,255,.3);
+      border-radius:12px;
+      color:#fff;
+      cursor:pointer;
+      transition:.3s;
+    }
+    .btn-secondary:hover {border-color:#39ff14;color:#39ff14;}
 
-.hero{
-  min-height:100vh;
-  padding-top:150px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  position: relative;
-  z-index: 1;
-}
-.hero-badge{
-  display:inline-block;
-  padding:8px 20px;
-  background:rgba(57,255,20,0.1);
-  border:1px solid rgba(57,255,20,0.3);
-  border-radius:50px;
-  color:#39ff14;
-  font-size:12px;
-  letter-spacing:2px;
-  margin-bottom:25px;
-}
-.hero h2{
-  font-family:'Orbitron'; font-weight:900;
-  font-size:clamp(36px,6vw,72px);
-  background:linear-gradient(135deg,#fff,#39ff14,#00ff88);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-.hero p{
-  color:#888;
-  margin:20px auto 40px;
-  max-width:600px;
-  font-size:18px;
-}
-.hero-buttons{
-  display:flex; gap:15px; justify-content:center; flex-wrap:wrap;
-}
-.btn-primary{
-  padding:16px 40px;
-  background:#39ff14;
-  border:none;
-  border-radius:12px;
-  font-weight:700;
-  color:#000;
-  cursor:pointer;
-  transition:.3s;
-}
-.btn-primary:hover {transform:translateY(-3px);}
-.btn-secondary{
-  padding:16px 40px;
-  background:transparent;
-  border:2px solid rgba(255,255,255,.3);
-  border-radius:12px;
-  color:#fff;
-  cursor:pointer;
-  transition:.3s;
-}
-.btn-secondary:hover {border-color:#39ff14;color:#39ff14;}
+    .reviews-container {
+      margin-top: 30px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
-.pricing-container{
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(300px,1fr));
-  gap:40px;
-  position: relative;
-  z-index:1;
-}
-.card{
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(57,255,20,0.2);
-  padding:30px;
-  border-radius:14px;
-  text-align:center;
-  transition:0.3s;
-  position: relative;
-  z-index:1;
-}
-.card:hover{transform:translateY(-8px);border-color:#39ff14;}
-.card-icon{font-size:40px;color:#39ff14;margin-bottom:15px;}
-.card .price {display:block;margin-top:20px;font-size:26px;color:#39ff14;font-weight:700;}
-.price-label {font-size:12px;color:#888;margin-top:5px;}
+    .review-item {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(57, 255, 20, 0.2);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
 
-.faq-item{
-  background:rgba(255,255,255,0.05);
-  padding:20px;
-  border-radius:12px;
-  border:1px solid rgba(57,255,20,0.2);
-  margin-bottom:20px;
-  position: relative;
-  z-index:1;
-}
-.faq-item h4 {font-family:'Orbitron'; margin-bottom:10px; font-size:18px; cursor:pointer;}
-.faq-answer {max-height:0; overflow:hidden; opacity:0; padding-top:0; transition:max-height .4s ease, opacity .3s ease, padding .3s ease;}
-.faq-item.active .faq-answer {max-height:300px; opacity:1; padding-top:10px;}
-.faq-item:hover {border-color:#39ff14;}
+    footer{
+      text-align:center;
+      padding:40px 20px;
+      border-top:1px solid rgba(57,255,20,.2);
+      margin-top:80px;
+      position: relative;
+      z-index:1;
+    }
+    .footer-logo{
+      font-family:'Orbitron';
+      font-size:20px;
+      background:linear-gradient(135deg,#39ff14,#00ff88);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
 
-.contact-form{
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(57,255,20,0.2);
-  padding:40px;
-  border-radius:14px;
-  max-width:700px;
-  margin:0 auto;
-  position: relative;
-  z-index:1;
-}
-.form-group{display:flex; flex-direction:column; margin-bottom:20px;}
-.form-group label {margin-bottom:6px; color:#39ff14;}
-.form-group input, .form-group select{
-  padding:12px;
-  border-radius:8px;
-  background:rgba(0,0,0,0.4);
-  border:1px solid rgba(255,255,255,0.2);
-  color:#fff;
-}
-.contact-form button{
-  width:100%;
-  padding:15px;
-  background:#39ff14;
-  border:none;
-  border-radius:10px;
-  font-size:18px;
-  font-weight:700;
-}
-.contact-form button:hover {background:#00cc44;}
-
-footer{
-  text-align:center;
-  padding:40px 20px;
-  border-top:1px solid rgba(57,255,20,.2);
-  margin-top:80px;
-  position: relative;
-  z-index:1;
-}
-.footer-logo{
-  font-family:'Orbitron';
-  font-size:20px;
-  background:linear-gradient(135deg,#39ff14,#00ff88);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-
-.discord-float{
-  position:fixed;
-  bottom:25px;
-  right:25px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:linear-gradient(135deg,#5865F2,#404EED);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:28px;
-  text-decoration:none;
-  box-shadow:0 0 25px rgba(88,101,242,.6);
-  z-index:9999;
-  animation: discordBob 2.2s ease-in-out infinite;
-}
-.discord-float:hover{transform:scale(1.1);}
-@keyframes discordBob {0%{transform:translateY(0);}50%{transform:translateY(-8px);}100%{transform:translateY(0);}}
-
-.reviews-container {
-  margin-top: 30px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.review-item {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(57, 255, 20, 0.2);
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-</style>
+    .discord-float{
+      position:fixed;
+      bottom:25px;
+      right:25px;
+      width:60px;
+      height:60px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#5865F2,#404EED);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      text-decoration:none;
+      box-shadow:0 0 25px rgba(88,101,242,.6);
+      z-index:9999;
+      animation: discordBob 2.2s ease-in-out infinite;
+    }
+    .discord-float:hover{transform:scale(1.1);}
+    @keyframes discordBob {0%{transform:translateY(0);}50%{transform:translateY(-8px);}100%{transform:translateY(0);}}
+  </style>
 </head>
 <body>
 
@@ -306,35 +217,7 @@ footer{
   </form>
 </section>
 
-<section id="pricing">
-  <h2 style="text-align:center;color:#39ff14;margin-bottom:40px;">Our Packages</h2>
-  <div class="pricing-container">
-    <div class="card" data-package="Modded Heists">
-      <div class="card-icon"><i class="fas fa-gem"></i></div>
-      <h3>Modded Heists</h3>
-      <p>Maximum payouts with safe methods.</p>
-      <div class="price">20 USD</div>
-      <button class="btn-primary buy-btn">Buy</button>
-    </div>
-    <div class="card" data-package="RP Boost">
-      <div class="card-icon"><i class="fas fa-bolt"></i></div>
-      <h3>RP Boost</h3>
-      <p>Fast rank progression.</p>
-      <div class="price">10 USD</div>
-      <button class="btn-primary buy-btn">Buy</button>
-    </div>
-    <div class="card" data-package="All Unlocks">
-      <div class="card-icon"><i class="fas fa-unlock"></i></div>
-      <h3>Unlock All</h3>
-      <p>All vehicles, weapons, clothing.</p>
-      <div class="price">25 USD</div>
-      <button class="btn-primary buy-btn">Buy</button>
-    </div>
-  </div>
-</section>
-
-<!-- FAQ and Contact sections are here as well -->
-<!-- (Previous sections like FAQ and Contact omitted for brevity) -->
+<!-- Your existing "Packages" and "FAQ" sections here -->
 
 <footer>
   <div class="footer-logo">MYDADSSOFT'S RECOVERYS</div>
@@ -346,84 +229,73 @@ footer{
 </a>
 
 <script>
-document.querySelectorAll('.faq-item h4').forEach(h => {
-  h.onclick = () => h.parentElement.classList.toggle('active');
-});
-
-document.querySelectorAll('.buy-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const card = btn.closest('.card');
-    const packageName = card.getAttribute('data-package');
-    document.getElementById('packageSelect').value = packageName;
-    document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.faq-item h4').forEach(h => {
+    h.onclick = () => h.parentElement.classList.toggle('active');
   });
-});
 
-// Function to load reviews from the server
-async function loadReviews() {
-  try {
-    const response = await fetch('/api/reviews');
-    const reviews = await response.json();
-    const reviewsContainer = document.getElementById('reviewsList');
-    reviewsContainer.innerHTML = ''; // Clear existing reviews
-
-    // Loop through reviews and create HTML
-    reviews.forEach(review => {
-      const reviewElement = document.createElement('div');
-      reviewElement.classList.add('review-item');
-      reviewElement.style.background = 'rgba(255, 255, 255, 0.1)';
-      reviewElement.style.border = '1px solid rgba(57, 255, 20, 0.2)';
-      reviewElement.style.padding = '15px';
-      reviewElement.style.borderRadius = '12px';
-      reviewElement.style.marginBottom = '20px';
-
-      reviewElement.innerHTML = `
-        <h4 style="color: #39ff14;">${review.name}</h4>
-        <p style="color: #888;">Rating: ${review.rating} / 5</p>
-        <p style="color: #fff;">${review.comment}</p>
-        <p style="font-size: 12px; color: #aaa;">Reviewed on: ${new Date(review.created_at).toLocaleString()}</p>
-      `;
-      reviewsContainer.appendChild(reviewElement);
+  document.querySelectorAll('.buy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.card');
+      const packageName = card.getAttribute('data-package');
+      document.getElementById('packageSelect').value = packageName;
+      document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
     });
-  } catch (error) {
-    console.error('Error loading reviews:', error);
-  }
-}
+  });
 
-// Function to submit a new review
-document.getElementById('reviewForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
+  async function loadReviews() {
+    try {
+      const response = await fetch('/api/reviews');
+      const reviews = await response.json();
+      const reviewsContainer = document.getElementById('reviewsList');
+      reviewsContainer.innerHTML = ''; 
 
-  const formData = new FormData(e.target);
-  const newReview = {
-    name: formData.get('name'),
-    rating: formData.get('rating'),
-    comment: formData.get('comment')
-  };
-
-  try {
-    const response = await fetch('/api/reviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newReview)
-    });
-
-    const result = await response.json();
-    if (result.ok) {
-      alert('Thank you for your review!');
-      loadReviews(); // Reload reviews to show the new one
-      e.target.reset(); // Reset form
-    } else {
-      alert('Error submitting review, please try again.');
+      reviews.forEach(review => {
+        const reviewElement = document.createElement('div');
+        reviewElement.classList.add('review-item');
+        reviewElement.innerHTML = `
+          <h4 style="color: #39ff14;">${review.name}</h4>
+          <p style="color: #888;">Rating: ${review.rating} / 5</p>
+          <p style="color: #fff;">${review.comment}</p>
+          <p style="font-size: 12px; color: #aaa;">Reviewed on: ${new Date(review.created_at).toLocaleString()}</p>
+        `;
+        reviewsContainer.appendChild(reviewElement);
+      });
+    } catch (error) {
+      console.error('Error loading reviews:', error);
     }
-  } catch (error) {
-    console.error('Error submitting review:', error);
-    alert('Failed to submit review. Try again later.');
   }
-});
 
-// Load reviews on page load
-document.addEventListener('DOMContentLoaded', loadReviews);
+  document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newReview = {
+      name: formData.get('name'),
+      rating: formData.get('rating'),
+      comment: formData.get('comment')
+    };
+
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newReview)
+      });
+
+      const result = await response.json();
+      if (result.ok) {
+        alert('Thank you for your review!');
+        loadReviews();
+        e.target.reset();
+      } else {
+        alert('Error submitting review, please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('Failed to submit review. Try again later.');
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', loadReviews);
 </script>
 
 </body>
