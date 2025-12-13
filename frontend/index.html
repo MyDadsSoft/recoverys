@@ -237,20 +237,17 @@ footer{
   text-decoration:none;
   box-shadow:0 0 25px rgba(88,101,242,.6);
   z-index:9999;
+  animation: discordBob 2.2s ease-in-out infinite;
 }
 .discord-float:hover{
   transform:scale(1.1);
 }
 
-  /* Discord bobbing animation */
+/* Discord bobbing animation */
 @keyframes discordBob {
   0%   { transform: translateY(0); }
   50%  { transform: translateY(-8px); }
   100% { transform: translateY(0); }
-}
-
-.discord-float {
-  animation: discordBob 2.2s ease-in-out infinite;
 }
 
 </style>
@@ -310,8 +307,36 @@ footer{
 
 <section id="faq">
   <h2 style="text-align:center;color:#39ff14;margin-bottom:40px;">FAQ</h2>
-  <div class="faq-item"><h4>Is this safe?</h4><div class="faq-answer"><p>Yes, low detection risk.</p></div></div>
-  <div class="faq-item"><h4>Delivery time?</h4><div class="faq-answer"><p>Usually under 24 hours.</p></div></div>
+
+  <div class="faq-item">
+    <h4>Is this safe?</h4>
+    <div class="faq-answer"><p>Yes. We use low-risk methods to avoid detection.</p></div>
+  </div>
+
+  <div class="faq-item">
+    <h4>How long does delivery take?</h4>
+    <div class="faq-answer"><p>Most orders are completed within 24 hours.</p></div>
+  </div>
+
+  <div class="faq-item">
+    <h4>What platform do you support?</h4>
+    <div class="faq-answer"><p>Only Rockstar Games Launcher accounts are supported.</p></div>
+  </div>
+
+  <div class="faq-item">
+    <h4>Do you support Steam or Epic Games?</h4>
+    <div class="faq-answer"><p>No. Steam & Epic Games orders will be denied.</p></div>
+  </div>
+
+  <div class="faq-item">
+    <h4>Why do I need to give a Discord ID?</h4>
+    <div class="faq-answer"><p>So we can contact you about your order.</p></div>
+  </div>
+
+  <div class="faq-item">
+    <h4>Is my information kept safe?</h4>
+    <div class="faq-answer"><p>Yes. No data is stored after completion.</p></div>
+  </div>
 </section>
 
 <section id="contact">
@@ -322,7 +347,7 @@ footer{
     <div class="form-group"><label>Discord ID</label><input required></div>
     <div class="form-group">
       <label>Package</label>
-      <select required>
+      <select required id="packageSelect" name="package">
         <option>Modded Heists</option>
         <option>RP Boost</option>
         <option>All Unlocks</option>
@@ -343,8 +368,19 @@ footer{
 </a>
 
 <script>
-document.querySelectorAll('.faq-item h4').forEach(h=>{
-  h.onclick=()=>h.parentElement.classList.toggle('active');
+// FAQ toggle
+document.querySelectorAll('.faq-item h4').forEach(h => {
+  h.onclick = () => h.parentElement.classList.toggle('active');
+});
+
+// BUY BUTTON FUNCTIONALITY
+document.querySelectorAll('.buy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const card = btn.closest('.card');
+    const packageName = card.getAttribute('data-package');
+    document.getElementById('packageSelect').value = packageName;
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+  });
 });
 </script>
 
