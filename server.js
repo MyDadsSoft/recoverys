@@ -104,10 +104,11 @@ if (BOT_TOKEN) {
 
 // ---------- PRICE LIST ----------
 const pricesUSD = {
-  'Modded Heists': 20,
+  'Modded Heists': 20, // same as frontend
   'RP Boost': 10,
-  'All Unlocks': 25
+  'All Unlocks': 40   // updated to match frontend
 };
+
 
 const currencyRates = {
   USD: 1,
