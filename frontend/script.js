@@ -113,3 +113,6 @@ document.getElementById('orderForm').addEventListener('submit', async e => {
     submitBtn.disabled = false;
   }
 });
+document.addEventListener('DOMContentLoaded', () => {
+  setupCurrencyConversion();
+});
