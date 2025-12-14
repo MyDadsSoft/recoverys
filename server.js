@@ -100,32 +100,43 @@ if (BOT_TOKEN) {
       return;
     }
 
-    // Handle !reply only from admins
+    // ---------- !reply HANDLER ----------
     if (message.guild && message.channel.id === ORDERS_CHANNEL_ID) {
-      if (!message.member.roles.cache.some(r => ADMIN_ROLE_IDS.includes(r.id))) return;
+      // Admin role check
+      if (ADMIN_ROLE_IDS.length && !message.member.roles.cache.some(r => ADMIN_ROLE_IDS.includes(r.id))) return;
 
-      const match = message.content.match(/^!reply\s+(\d{17,19})\s+([\s\S]+)/);
-      if (!match) return message.reply('Usage: !reply <UserID> Your message');
+      // Only handle messages starting with !reply
+      if (!message.content.toLowerCase().startsWith('!reply')) return;
 
-      const userId = match[1].trim();
-      const replyMessage = match[2].trim();
+      const args = message.content.trim().split(/\s+/);
+      if (args.length < 3) return message.reply('Usage: !reply <UserID or @user> Your message');
+
+      // Convert mention to user ID if necessary
+      let userId = args[1];
+      const mentionMatch = userId.match(/^<@!?(\d+)>$/);
+      if (mentionMatch) {
+        userId = mentionMatch[1];
+      }
+
+      const replyMessage = args.slice(2).join(' ');
 
       try {
         const user = await client.users.fetch(userId).catch(() => null);
         if (!user) return message.reply('User not found.');
 
-        await user.send(`Reply from MyDadsSoft Recoverys: ${replyMessage}`);
+        await user.send(`📩 **Reply from MyDadsSoft Recoverys:**\n${replyMessage}`);
 
-        const order = orders.find(o => o.discord === userId && !o.replied);
+        // Mark order as replied
+        const order = orders.find(o => o.discord === user.id && !o.replied);
         if (order) {
           order.replied = true;
           saveOrders();
         }
 
-        message.reply(`Message sent to ${user.tag}`);
+        message.reply(`✅ Message sent to ${user.tag}`);
       } catch (err) {
         console.error(err);
-        message.reply('Failed to send message. User may not allow DMs.');
+        message.reply('❌ Failed to send DM. User may not allow DMs.');
       }
     }
   });
