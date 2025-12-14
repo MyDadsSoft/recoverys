@@ -1,10 +1,16 @@
-import { Client, GatewayIntentBits, PermissionsBitField } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
+
+// 🔒 ALLOWED ROLES
+const ALLOWED_ROLE_IDS = [
+  '1449172692820557825',
+  '1449172692820557824',
+];
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
@@ -14,12 +20,16 @@ client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
   if (interaction.commandName !== 'reply') return;
 
-  // 🔒 ADMIN CHECK
-  if (
-    !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)
-  ) {
+  // 🔒 ROLE CHECK
+  const memberRoles = interaction.member.roles.cache;
+
+  const hasPermission = ALLOWED_ROLE_IDS.some(roleId =>
+    memberRoles.has(roleId)
+  );
+
+  if (!hasPermission) {
     return interaction.reply({
-      content: '❌ You must be an **Administrator** to use this command.',
+      content: '❌ You do not have permission to use this command.',
       ephemeral: true,
     });
   }
