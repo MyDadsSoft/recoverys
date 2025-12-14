@@ -1,10 +1,11 @@
-import { REST, Routes, SlashCommandBuilder } from 'discord.js';
+import { REST, Routes, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const command = new SlashCommandBuilder()
   .setName('reply')
   .setDescription('Reply to a user via DM')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator) // 🔒
   .addUserOption(option =>
     option
       .setName('user')
@@ -27,7 +28,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
       Routes.applicationCommands(process.env.CLIENT_ID),
       { body: [command.toJSON()] }
     );
-    console.log('✅ Slash command registered');
+    console.log('✅ Admin-only slash command registered');
   } catch (error) {
     console.error(error);
   }
