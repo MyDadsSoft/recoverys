@@ -72,7 +72,7 @@ async function setupCurrencyConversion() {
 
 setupCurrencyConversion();
 
-// ----- Order form submission via Node.js bot backend -----
+// ----- Order form submission to deployed backend -----
 document.getElementById('orderForm').addEventListener('submit', async e => {
   e.preventDefault();
   const form = e.target;
@@ -86,26 +86,28 @@ document.getElementById('orderForm').addEventListener('submit', async e => {
     name: form.name.value,
     email: form.email.value,
     discord: form.discord.value,
-    package: form.package.value,
+    packageSelected: form.package.value,
     currency: currencySelector.value
   };
 
   try {
-    const res = await fetch('/order', {
+    const res = await fetch('https://recoverys.onrender.com/api/order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
     if (res.ok) {
-      alert('Order submitted successfully! We\'ll contact you on Discord shortly.');
+      const data = await res.json();
+      alert(data.message || 'Order submitted successfully! We\'ll contact you on Discord shortly.');
       form.reset();
     } else {
-      throw new Error('Failed to submit order');
+      const errorData = await res.json();
+      alert(errorData.message || 'Failed to submit order. Please try again.');
     }
   } catch (err) {
-    alert('Failed to submit order. Please try again.');
-    console.error(err);
+    alert('Failed to submit order. Please check your internet connection and try again.');
+    console.error('Order submission error:', err);
   } finally {
     submitBtn.textContent = originalText;
     submitBtn.disabled = false;
