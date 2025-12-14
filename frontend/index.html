@@ -351,7 +351,7 @@
 
     <div class="faq-item">
       <h4>Is this safe?</h4>
-      <div class="faq-answer"><p>Yes, low-risk methods.</p></div>
+      <div class="faq-answer"><p>Yes, low-no risk methods are used and no reports of bans have happened :D</p></div>
     </div>
 
     <div class="faq-item">
@@ -366,17 +366,17 @@
 
     <div class="faq-item">
       <h4>What platform do you support?</h4>
-      <div class="faq-answer"><p>Only Rockstar Games Launcher accounts are supported.</p></div>
+      <div class="faq-answer"><p>Only Rockstar Games Launcher and Steam accounts are supported.</p></div>
     </div>
 
     <div class="faq-item">
-      <h4>Do you support Steam or Epic Games?</h4>
-      <div class="faq-answer"><p>No. Steam & Epic Games orders will be denied.</p></div>
+      <h4>Do you support Epic Games?</h4>
+      <div class="faq-answer"><p>No. Epic Games orders will be denied.</p></div>
     </div>
 
     <div class="faq-item">
       <h4>Is my information kept safe?</h4>
-      <div class="faq-answer"><p>Yes. No data is stored after completion.</p></div>
+      <div class="faq-answer"><p>Yes. No data is stored after completion, Feel free to change it afterwards :D.</p></div>
     </div>
 
     <div class="faq-item">
@@ -400,13 +400,16 @@
           <option value="All Unlocks">All Unlocks</option>
         </select>
       </div>
-      <div class="form-group"><label>Currency</label>
-        <select name="currency" required>
-          <option value="USD" selected>USD</option>
-          <option value="EUR">EUR</option>
-          <option value="GBP">GBP</option>
-        </select>
-      </div>
+      <div class="form-group">
+  <label>Currency</label>
+  <select name="currency" id="currency" required>
+    <option value="GBP">GBP (£)</option>
+    <option value="USD">USD ($)</option>
+    <option value="EUR">EUR (€)</option>
+    <option value="AUD">AUD (A$)</option>
+  </select>
+</div>
+
       <button type="submit">Place Order</button>
     </form>
   </section>
@@ -460,7 +463,7 @@
         console.error(err);
       }
     });
-
+  <script>
     // Discord button function
     function openDiscordForm() {
       const discordInvite = "https://discord.gg/eaMn5YhX6J";
@@ -468,5 +471,8 @@
     }
   </script>
 
+  <!-- Load main frontend logic -->
+  <script src="/script.js"></script>
 </body>
 </html>
+
