@@ -1,35 +1,27 @@
-import { REST, Routes, SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { REST, Routes, SlashCommandBuilder } from 'discord.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const command = new SlashCommandBuilder()
   .setName('reply')
   .setDescription('Reply to a user via DM')
-  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator) // 🔒
-  .addUserOption(option =>
-    option
-      .setName('user')
-      .setDescription('User to DM')
-      .setRequired(true)
+  .addUserOption(o =>
+    o.setName('user').setDescription('User to DM').setRequired(true)
   )
-  .addStringOption(option =>
-    option
-      .setName('message')
-      .setDescription('Message to send')
-      .setRequired(true)
+  .addStringOption(o =>
+    o.setName('message').setDescription('Message to send').setRequired(true)
   );
 
 const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
 
 (async () => {
-  try {
-    console.log('Registering slash command...');
-    await rest.put(
-      Routes.applicationCommands(process.env.CLIENT_ID),
-      { body: [command.toJSON()] }
-    );
-    console.log('✅ Admin-only slash command registered');
-  } catch (error) {
-    console.error(error);
-  }
+  await rest.put(
+    Routes.applicationGuildCommands(
+      process.env.CLIENT_ID,
+      process.env.GUILD_ID
+    ),
+    { body: [command.toJSON()] }
+  );
+
+  console.log('✅ /reply registered instantly');
 })();
