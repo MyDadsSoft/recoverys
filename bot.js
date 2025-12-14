@@ -23,28 +23,28 @@ client.on('messageCreate', async (message) => {
   if (message.channel.id !== ORDERS_CHANNEL_ID) return;
 
   // Only process messages starting with '!reply'
-  if (!message.content.startsWith('!reply')) return;
+  if (message.content.startsWith('!reply')) {
+    const args = message.content.slice(6).trim().split(' ');
 
-  const args = message.content.slice(6).trim().split(' ');
-
-  // Ensure that there is a user tag and a message
-  if (args.length < 2) {
-    return message.reply('Usage: !reply <UserID> <Your message>');
-  }
-
-  const userTag = args.shift();
-  const replyMessage = args.join(' ');
-
-  try {
-    const user = client.users.cache.find(u => u.tag === userTag);
-    if (!user) {
-      return message.reply(`User ${userTag} not found.`);
+    // Ensure that there is a user tag and a message
+    if (args.length < 2) {
+      return message.reply('Usage: !reply <UserID> <Your message>');
     }
-    await user.send(`Reply from MyDadsSoft's Recoverys: ${replyMessage}`);
-    message.reply(`✅ Message sent to ${userTag}`);
-  } catch (err) {
-    console.error(err);
-    message.reply('❌ Failed to send message. Make sure the user allows DMs.');
+
+    const userTag = args.shift();
+    const replyMessage = args.join(' ');
+
+    try {
+      const user = client.users.cache.find(u => u.tag === userTag);
+      if (!user) {
+        return message.reply(`User ${userTag} not found.`);
+      }
+      await user.send(`Reply from MyDadsSoft's Recoverys: ${replyMessage}`);
+      message.reply(`✅ Message sent to ${userTag}`);
+    } catch (err) {
+      console.error(err);
+      message.reply('❌ Failed to send message. Make sure the user allows DMs.');
+    }
   }
 });
 
