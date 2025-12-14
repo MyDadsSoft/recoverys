@@ -39,34 +39,43 @@ function saveOrders() {
   }
 }
 
+// Queue to store orders until bot is ready
+let orderQueue = [];
+
 // ---------- DISCORD BOT ----------
-let client = null;
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const ORDERS_CHANNEL_ID = process.env.ORDERS_CHANNEL_ID;
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.MessageContent
+  ],
+  partials: [Partials.Channel]
+});
+
 let botReady = false;
 
-if (process.env.BOT_TOKEN) {
-  client = new Client({
-    intents: [
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.DirectMessages,
-      GatewayIntentBits.MessageContent
-    ],
-    partials: [Partials.Channel]
-  });
+if (BOT_TOKEN) {
+  client.login(BOT_TOKEN).catch(err => console.error('Bot login failed:', err));
 
-  client.login(process.env.BOT_TOKEN).catch(err => console.error(err));
-  client.once('ready', () => {
+  client.once('ready', async () => {
     console.log(`Bot logged in as ${client.user.tag}`);
     botReady = true;
-  });
 
-  const ORDERS_CHANNEL_ID = process.env.ORDERS_CHANNEL_ID || '';
+    // Send any queued orders
+    while (orderQueue.length > 0) {
+      const order = orderQueue.shift();
+      await sendOrderToDiscord(order);
+    }
+  });
 
   // Forward DMs to orders channel
   client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
-    // Handle DMs
     if (!message.guild && ORDERS_CHANNEL_ID) {
       try {
         const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
@@ -87,34 +96,6 @@ if (process.env.BOT_TOKEN) {
       } catch (err) {
         console.error('Failed to forward DM:', err.message);
       }
-      return;
-    }
-
-    // Handle !reply in orders channel
-    if (message.guild && message.channel.id === ORDERS_CHANNEL_ID) {
-      const [command, userId, ...msgParts] = message.content.trim().split(' ');
-      if (command !== '!reply') return;
-      const replyMessage = msgParts.join(' ');
-      if (!userId || !replyMessage) return message.reply('Usage: !reply <UserID> Your message');
-
-      try {
-        const user = await client.users.fetch(userId).catch(() => null);
-        if (!user) return message.reply('User not found.');
-
-        await user.send(`Reply from MyDadsSoft Recoverys: ${replyMessage}`);
-
-        // Update orders.json if the user exists in orders
-        const order = orders.find(o => o.discord === userId && !o.replied);
-        if (order) {
-          order.replied = true;
-          saveOrders();
-        }
-
-        message.reply(`Message sent to ${user.tag}`);
-      } catch (err) {
-        console.error(err);
-        message.reply('Failed to send message. User may not allow DMs.');
-      }
     }
   });
 } else {
@@ -133,6 +114,36 @@ const currencyRates = {
   EUR: 0.95,
   GBP: 0.82
 };
+
+// ---------- HELPER TO SEND ORDER TO DISCORD ----------
+async function sendOrderToDiscord(order) {
+  if (!client || !ORDERS_CHANNEL_ID) return;
+
+  try {
+    const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
+    if (!channel) throw new Error('Orders channel not found');
+
+    await channel.send({
+      embeds: [{
+        title: 'New Order Received',
+        color: 0x39ff14,
+        fields: [
+          { name: 'Name', value: order.name, inline: true },
+          { name: 'Email', value: order.email, inline: true },
+          { name: 'Discord ID', value: order.discord, inline: true },
+          { name: 'Package', value: order.packageSelected, inline: true },
+          { name: 'Price', value: `${order.price} ${order.currency}`, inline: true },
+          { name: 'Order ID', value: `${order.id}`, inline: true }
+        ],
+        timestamp: new Date().toISOString()
+      }]
+    });
+
+    console.log(`Order ${order.id} sent to Discord successfully`);
+  } catch (err) {
+    console.error('Failed to send order to Discord:', err);
+  }
+}
 
 // ---------- API ENDPOINTS ----------
 app.post('/api/order', async (req, res) => {
@@ -158,29 +169,13 @@ app.post('/api/order', async (req, res) => {
   orders.push(order);
   saveOrders();
 
-  if (client && botReady && process.env.ORDERS_CHANNEL_ID) {
-    try {
-      const channel = await client.channels.fetch(process.env.ORDERS_CHANNEL_ID);
-      if (channel) {
-        await channel.send({
-          embeds: [{
-            title: 'New Order Received',
-            color: 0x39ff14,
-            fields: [
-              { name: 'Name', value: name, inline: true },
-              { name: 'Email', value: email, inline: true },
-              { name: 'Discord ID', value: discord, inline: true },
-              { name: 'Package', value: packageSelected, inline: true },
-              { name: 'Price', value: `${convertedPrice} ${currency}`, inline: true },
-              { name: 'Order ID', value: `${order.id}`, inline: true }
-            ],
-            timestamp: new Date().toISOString()
-          }]
-        });
-      }
-    } catch (err) {
-      console.error('Failed to send order to Discord channel:', err);
-    }
+  console.log('Received order:', order);
+
+  if (botReady) {
+    await sendOrderToDiscord(order);
+  } else {
+    console.log('Bot not ready yet, queuing order');
+    orderQueue.push(order);
   }
 
   res.json({ success: true, message: `Order received! Total: ${convertedPrice} ${currency}` });
@@ -189,11 +184,11 @@ app.post('/api/order', async (req, res) => {
 app.get('/api/orders', (req, res) => res.json(orders));
 
 app.post('/api/reply', async (req, res) => {
-  if (!client || !botReady) return res.status(503).json({ success: false, message: 'Discord bot unavailable.' });
-
   const { orderId, message } = req.body;
   const order = orders.find(o => o.id === orderId);
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+  if (!client || !botReady) return res.status(503).json({ success: false, message: 'Discord bot unavailable.' });
 
   try {
     const user = await client.users.fetch(order.discord).catch(() => null);
