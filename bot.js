@@ -1,10 +1,4 @@
-import {
-  Client,
-  GatewayIntentBits,
-  REST,
-  Routes,
-  SlashCommandBuilder
-} from 'discord.js';
+import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
@@ -34,92 +28,58 @@ function saveOrders() {
 }
 
 // ---------- DISCORD CLIENT ----------
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-
-// 🔒 ALLOWED ROLES
-const ALLOWED_ROLE_IDS = [
-  '1449172692820557825',
-  '1449172692820557824',
-];
-
-// 🧠 SLASH COMMAND DEFINITION
-const replyCommand = new SlashCommandBuilder()
-  .setName('reply')
-  .setDescription('Reply to a user via DM')
-  .addUserOption(o =>
-    o.setName('user').setDescription('User to DM').setRequired(true)
-  )
-  .addStringOption(o =>
-    o.setName('message').setDescription('Message to send').setRequired(true)
-  );
-
-// ---------- REGISTER SLASH COMMAND ----------
-async function registerCommands() {
-  const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
-
-  console.log('🔁 Registering /reply command...');
-
-  await rest.put(
-    Routes.applicationGuildCommands(
-      process.env.CLIENT_ID,
-      process.env.GUILD_ID
-    ),
-    { body: [replyCommand.toJSON()] }
-  );
-
-  console.log('✅ /reply registered');
-}
-
-// ---------- BOT READY ----------
-client.once('ready', async () => {
-  console.log(`🤖 Logged in as ${client.user.tag}`);
-
-  try {
-    await registerCommands();
-  } catch (err) {
-    console.error('❌ COMMAND REGISTRATION FAILED');
-    console.error(err);
-  }
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [Partials.Channel],
 });
 
-// ---------- INTERACTION HANDLER ----------
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-  if (interaction.commandName !== 'reply') return;
+const ORDERS_CHANNEL_ID = process.env.ORDERS_CHANNEL_ID;
+const ADMIN_ROLE_IDS = (process.env.ADMIN_ROLE_IDS || '').split(',');
 
-  // 🔒 ROLE CHECK
-  const roles = interaction.member.roles.cache;
-  const allowed = ALLOWED_ROLE_IDS.some(id => roles.has(id));
+client.on('ready', () => {
+  console.log(`Bot logged in as ${client.user.tag}`);
+});
 
-  if (!allowed) {
-    return interaction.reply({
-      content: '❌ You do not have permission to use this command.',
-      ephemeral: true,
-    });
+// ---------- MESSAGE HANDLER ----------
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return; // ignore bots
+  if (!message.guild || message.channel.id !== ORDERS_CHANNEL_ID) return; // only orders channel
+
+  // Only respond to !reply commands
+  if (!message.content.toLowerCase().startsWith('!reply')) return;
+
+  // Admin role check
+  if (ADMIN_ROLE_IDS.length && !message.member.roles.cache.some(r => ADMIN_ROLE_IDS.includes(r.id))) {
+    return message.reply('❌ You do not have permission to use this command.');
   }
 
-  const user = interaction.options.getUser('user');
-  const message = interaction.options.getString('message');
+  const args = message.content.trim().split(/\s+/);
+  if (args.length < 3) return message.reply('Usage: !reply <UserID> Your message');
+
+  const userId = args[1];
+  const replyMessage = args.slice(2).join(' ');
 
   try {
-    await user.send(`📩 **Reply from MyDadsSoft Recoverys:**\n${message}`);
-    
-    // ✅ MARK ORDER AS REPLIED
-    const order = orders.find(o => o.discord === user.id && !o.replied);
+    const user = await client.users.fetch(userId).catch(() => null);
+    if (!user) return message.reply('User not found.');
+
+    await user.send(`📩 **Reply from MyDadsSoft Recoverys:**\n${replyMessage}`);
+
+    // Mark order as replied
+    const order = orders.find(o => o.discord === userId && !o.replied);
     if (order) {
       order.replied = true;
       saveOrders();
     }
 
-    await interaction.reply({
-      content: `✅ Message sent to **${user.username}**`,
-      ephemeral: true,
-    });
-  } catch {
-    await interaction.reply({
-      content: '❌ Failed to send DM.',
-      ephemeral: true,
-    });
+    message.reply(`✅ Message sent to ${user.tag}`);
+  } catch (err) {
+    console.error(err);
+    message.reply('❌ Failed to send DM. User may not allow DMs.');
   }
 });
 
