@@ -112,9 +112,11 @@ const pricesUSD = {
 
 const currencyRates = {
   USD: 1,
-  EUR: 0.95,
-  GBP: 0.82
+  EUR: 0.93,   // match your frontend rate
+  GBP: 0.748,  // THIS IS THE CRUCIAL PART
+  AUD: 1.52
 };
+
 
 // ---------- HELPER TO SEND ORDER TO DISCORD ----------
 async function sendOrderToDiscord(order) {
