@@ -5,20 +5,74 @@ document.querySelectorAll('.faq-item').forEach(item => {
   });
 });
 
-// ----- Currency conversion -----
-const exchangeRates = { USD: 1, EUR: 0.93, GBP: 0.81 };
-const currencySymbols = { USD: '$', EUR: '€', GBP: '£' };
+// ----- Currency conversion (GBP default) -----
+
+const fallbackRates = {
+  USD: 1,
+  EUR: 0.93,
+  GBP: 0.81,
+  AUD: 1.52
+};
+
+const currencySymbols = {
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  AUD: 'A$'
+};
+
 const currencySelector = document.getElementById('currency');
 
-currencySelector.addEventListener('change', () => {
-  const currency = currencySelector.value;
-  const symbol = currencySymbols[currency];
-  document.querySelectorAll('.card').forEach(card => {
-    const usdPrice = parseFloat(card.dataset.priceUsd);
-    const converted = Math.round(usdPrice * exchangeRates[currency]);
-    card.querySelector('.price').textContent = `${symbol}${converted}`;
-  });
-});
+// Format price nicely (e.g. £19.99)
+function formatPrice(amount) {
+  return amount.toFixed(2);
+}
+
+async function loadExchangeRates() {
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const data = await res.json();
+
+    if (data?.rates) {
+      return {
+        USD: 1,
+        EUR: data.rates.EUR,
+        GBP: data.rates.GBP,
+        AUD: data.rates.AUD
+      };
+    }
+  } catch (err) {
+    console.warn('Live rates failed, using fallback rates');
+  }
+
+  return fallbackRates;
+}
+
+async function setupCurrencyConversion() {
+  const exchangeRates = await loadExchangeRates();
+
+  //  DEFAULT TO GBP
+  currencySelector.value = 'GBP';
+
+  function updatePrices() {
+    const currency = currencySelector.value;
+    const symbol = currencySymbols[currency];
+    const rate = exchangeRates[currency];
+
+    document.querySelectorAll('.card').forEach(card => {
+      const usdPrice = parseFloat(card.dataset.priceUsd);
+      const converted = usdPrice * rate;
+      card.querySelector('.price').textContent =
+        `${symbol}${formatPrice(converted)}`;
+    });
+  }
+
+  currencySelector.addEventListener('change', updatePrices);
+  updatePrices(); // run once on load
+}
+
+setupCurrencyConversion();
+
 
 // ----- Discord webhook form submission -----
 const webhookURL = 'https://discord.com/api/webhooks/1438401042973720597/ucHdurwxn5uJuuJsh34IHwUvjj2ksiTHt5YRgFULSnlPyWYEPU-RKjAUSx6gap2Ly2hc';
