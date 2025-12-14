@@ -73,6 +73,7 @@ async function setupCurrencyConversion() {
 setupCurrencyConversion();
 
 // ----- Order form submission to deployed backend -----
+// ----- Order form submission to deployed backend -----
 document.getElementById('orderForm').addEventListener('submit', async e => {
   e.preventDefault();
   const form = e.target;
@@ -112,7 +113,4 @@ document.getElementById('orderForm').addEventListener('submit', async e => {
     submitBtn.textContent = originalText;
     submitBtn.disabled = false;
   }
-});
-document.addEventListener('DOMContentLoaded', () => {
-  setupCurrencyConversion();
 });
