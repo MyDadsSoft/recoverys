@@ -428,52 +428,56 @@
     <i class="fab fa-discord"></i>
   </a>
 
-  <script>
-    // FAQ toggle
-    document.querySelectorAll('.faq-item h4').forEach(h => {
-      h.onclick = () => h.parentElement.classList.toggle('active');
+ <script>
+  // FAQ toggle
+  document.querySelectorAll('.faq-item h4').forEach(h => {
+    h.onclick = () => h.parentElement.classList.toggle('active');
+  });
+
+  // Buy buttons scroll to form
+  document.querySelectorAll('.buy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.card');
+      const packageName = card.getAttribute('data-package');
+      document.getElementById('packageSelect').value = packageName;
+      document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
     });
+  });
 
-    // Buy buttons scroll to form
-    document.querySelectorAll('.buy-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const card = btn.closest('.card');
-        const packageName = card.getAttribute('data-package');
-        document.getElementById('packageSelect').value = packageName;
-        document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
-      });
-    });
+  // Order form submit
+  document.getElementById('orderForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
 
-    // Order form submit
-    document.getElementById('orderForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-
-      if (!/^\d{18}$/.test(data.discord)) { alert('Please enter a valid 18-digit Discord ID.'); return; }
-
-      try {
-        const res = await fetch('https://recoverys.onrender.com/api/order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        const result = await res.json();
-        alert(result.message);
-        e.target.reset();
-      } catch (err) {
-        alert('Failed to submit order. Try again later.');
-        console.error(err);
-      }
-    });
-  <script>
-    // Discord button function
-    function openDiscordForm() {
-      const discordInvite = "https://discord.gg/eaMn5YhX6J";
-      window.open(discordInvite, "_blank");
+    // Validate 18-digit Discord ID
+    if (!/^\d{18}$/.test(data.discord)) {
+      alert('Please enter a valid 18-digit Discord ID.');
+      return;
     }
-  </script>
+
+    try {
+      const res = await fetch('https://recoverys.onrender.com/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      alert(result.message);
+      e.target.reset();
+    } catch (err) {
+      alert('Failed to submit order. Try again later.');
+      console.error(err);
+    }
+  });
+
+  // Discord floating button
+  function openDiscordForm() {
+    const discordInvite = "https://discord.gg/eaMn5YhX6J";
+    window.open(discordInvite, "_blank");
+  }
+</script>
 
   <!-- Load main frontend logic -->
   <script src="script.js?v=2"></script>
