@@ -6,7 +6,6 @@ document.querySelectorAll('.faq-item').forEach(item => {
 });
 
 // ----- Currency conversion (GBP default) -----
-
 const fallbackRates = {
   USD: 1,
   EUR: 0.93,
@@ -51,7 +50,7 @@ async function loadExchangeRates() {
 async function setupCurrencyConversion() {
   const exchangeRates = await loadExchangeRates();
 
-  //  DEFAULT TO GBP
+  // DEFAULT TO GBP
   currencySelector.value = 'GBP';
 
   function updatePrices() {
@@ -73,46 +72,36 @@ async function setupCurrencyConversion() {
 
 setupCurrencyConversion();
 
-
-// ----- Discord webhook form submission -----
-const webhookURL = 'https://discord.com/api/webhooks/1438401042973720597/ucHdurwxn5uJuuJsh34IHwUvjj2ksiTHt5YRgFULSnlPyWYEPU-RKjAUSx6gap2Ly2hc';
-
+// ----- Order form submission via Node.js bot backend -----
 document.getElementById('orderForm').addEventListener('submit', async e => {
   e.preventDefault();
   const form = e.target;
   const submitBtn = form.querySelector('button');
   const originalText = submitBtn.textContent;
-  
+
   submitBtn.textContent = 'Sending...';
   submitBtn.disabled = true;
-  
-  const data = {
-    embeds: [{
-      title: "New Order Received",
-      color: 3735316,
-      fields: [
-        { name: "Name", value: form.name.value, inline: true },
-        { name: "Email", value: form.email.value, inline: true },
-        { name: "Discord", value: form.discord.value, inline: true },
-        { name: "Package", value: form.package.value, inline: true },
-        { name: "Currency", value: currencySelector.value, inline: true }
-      ],
-      timestamp: new Date().toISOString()
-    }]
+
+  const payload = {
+    name: form.name.value,
+    email: form.email.value,
+    discord: form.discord.value,
+    package: form.package.value,
+    currency: currencySelector.value
   };
-  
+
   try {
-    const res = await fetch(webhookURL, {
+    const res = await fetch('/order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(payload)
     });
-    
+
     if (res.ok) {
       alert('Order submitted successfully! We\'ll contact you on Discord shortly.');
       form.reset();
     } else {
-      throw new Error(`Webhook returned status ${res.status}`);
+      throw new Error('Failed to submit order');
     }
   } catch (err) {
     alert('Failed to submit order. Please try again.');
