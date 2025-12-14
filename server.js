@@ -39,7 +39,7 @@ function saveOrders() {
   }
 }
 
-// Queue to store orders until bot is ready
+// Queue for orders before bot ready
 let orderQueue = [];
 
 // ---------- DISCORD BOT ----------
@@ -76,6 +76,7 @@ if (BOT_TOKEN) {
   client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
+    // Forward DMs
     if (!message.guild && ORDERS_CHANNEL_ID) {
       try {
         const channel = await client.channels.fetch(ORDERS_CHANNEL_ID);
@@ -96,6 +97,35 @@ if (BOT_TOKEN) {
       } catch (err) {
         console.error('Failed to forward DM:', err.message);
       }
+      return;
+    }
+
+    // Handle !reply in orders channel
+    if (message.guild && message.channel.id === ORDERS_CHANNEL_ID) {
+      const match = message.content.match(/^!reply\s+(\d{17,19})\s+([\s\S]+)/);
+      if (!match) return message.reply('Usage: !reply <UserID> Your message');
+
+      const userId = match[1].trim();
+      const replyMessage = match[2].trim();
+
+      try {
+        const user = await client.users.fetch(userId).catch(() => null);
+        if (!user) return message.reply('User not found.');
+
+        await user.send(`Reply from MyDadsSoft Recoverys: ${replyMessage}`);
+
+        // Mark order as replied
+        const order = orders.find(o => o.discord === userId && !o.replied);
+        if (order) {
+          order.replied = true;
+          saveOrders();
+        }
+
+        message.reply(`Message sent to ${user.tag}`);
+      } catch (err) {
+        console.error(err);
+        message.reply('Failed to send message. User may not allow DMs.');
+      }
     }
   });
 } else {
@@ -104,19 +134,17 @@ if (BOT_TOKEN) {
 
 // ---------- PRICE LIST ----------
 const pricesUSD = {
-  'Modded Heists': 20, // same as frontend
+  'Modded Heists': 20,
   'RP Boost': 10,
-  'All Unlocks': 40   // updated to match frontend
+  'All Unlocks': 40
 };
-
 
 const currencyRates = {
   USD: 1,
-  EUR: 0.93,   // match your frontend rate
-  GBP: 0.748,  // THIS IS THE CRUCIAL PART
+  EUR: 0.93,
+  GBP: 0.748,
   AUD: 1.52
 };
-
 
 // ---------- HELPER TO SEND ORDER TO DISCORD ----------
 async function sendOrderToDiscord(order) {
