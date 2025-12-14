@@ -45,6 +45,7 @@ let orderQueue = [];
 // ---------- DISCORD BOT ----------
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const ORDERS_CHANNEL_ID = process.env.ORDERS_CHANNEL_ID;
+const ADMIN_ROLE_IDS = (process.env.ADMIN_ROLE_IDS || '').split(','); // Only allow replies from these roles
 
 const client = new Client({
   intents: [
@@ -72,7 +73,6 @@ if (BOT_TOKEN) {
     }
   });
 
-  // Forward DMs to orders channel
   client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
@@ -100,8 +100,10 @@ if (BOT_TOKEN) {
       return;
     }
 
-    // Handle !reply in orders channel
+    // Handle !reply only from admins
     if (message.guild && message.channel.id === ORDERS_CHANNEL_ID) {
+      if (!message.member.roles.cache.some(r => ADMIN_ROLE_IDS.includes(r.id))) return;
+
       const match = message.content.match(/^!reply\s+(\d{17,19})\s+([\s\S]+)/);
       if (!match) return message.reply('Usage: !reply <UserID> Your message');
 
@@ -114,7 +116,6 @@ if (BOT_TOKEN) {
 
         await user.send(`Reply from MyDadsSoft Recoverys: ${replyMessage}`);
 
-        // Mark order as replied
         const order = orders.find(o => o.discord === userId && !o.replied);
         if (order) {
           order.replied = true;
