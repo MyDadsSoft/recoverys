@@ -16,16 +16,30 @@ client.once('ready', () => {
 const ORDERS_CHANNEL_ID = 'YOUR_PRIVATE_CHANNEL_ID_HERE';
 
 client.on('messageCreate', async (message) => {
+  // Ignore messages from the bot itself
+  if (message.author.bot) return;
+
+  // Only process messages from the specified channel
   if (message.channel.id !== ORDERS_CHANNEL_ID) return;
+
+  // Only process messages starting with '!reply'
   if (!message.content.startsWith('!reply')) return;
 
   const args = message.content.slice(6).trim().split(' ');
+
+  // Ensure that there is a user tag and a message
+  if (args.length < 2) {
+    return message.reply('Usage: !reply <UserID> <Your message>');
+  }
+
   const userTag = args.shift();
   const replyMessage = args.join(' ');
 
   try {
     const user = client.users.cache.find(u => u.tag === userTag);
-    if (!user) return message.reply(`User ${userTag} not found.`);
+    if (!user) {
+      return message.reply(`User ${userTag} not found.`);
+    }
     await user.send(`Reply from MyDadsSoft's Recoverys: ${replyMessage}`);
     message.reply(`✅ Message sent to ${userTag}`);
   } catch (err) {
