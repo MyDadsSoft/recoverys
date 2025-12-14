@@ -6,11 +6,35 @@ import {
   SlashCommandBuilder
 } from 'discord.js';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 dotenv.config();
 
-const client = new Client({
-  intents: [GatewayIntentBits.Guilds],
-});
+// ---------- ORDERS DATA ----------
+const dataDir = path.join(process.cwd(), 'data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+
+const ordersPath = path.join(dataDir, 'orders.json');
+let orders = [];
+if (fs.existsSync(ordersPath)) {
+  try {
+    orders = JSON.parse(fs.readFileSync(ordersPath));
+  } catch (err) {
+    console.error('Failed to parse orders.json', err);
+    orders = [];
+  }
+}
+
+function saveOrders() {
+  try {
+    fs.writeFileSync(ordersPath, JSON.stringify(orders, null, 2));
+  } catch (err) {
+    console.error('Failed to save orders.json', err);
+  }
+}
+
+// ---------- DISCORD CLIENT ----------
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // 🔒 ALLOWED ROLES
 const ALLOWED_ROLE_IDS = [
@@ -29,6 +53,7 @@ const replyCommand = new SlashCommandBuilder()
     o.setName('message').setDescription('Message to send').setRequired(true)
   );
 
+// ---------- REGISTER SLASH COMMAND ----------
 async function registerCommands() {
   const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
 
@@ -45,6 +70,7 @@ async function registerCommands() {
   console.log('✅ /reply registered');
 }
 
+// ---------- BOT READY ----------
 client.once('ready', async () => {
   console.log(`🤖 Logged in as ${client.user.tag}`);
 
@@ -56,6 +82,7 @@ client.once('ready', async () => {
   }
 });
 
+// ---------- INTERACTION HANDLER ----------
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
   if (interaction.commandName !== 'reply') return;
@@ -76,6 +103,14 @@ client.on('interactionCreate', async (interaction) => {
 
   try {
     await user.send(`📩 **Reply from MyDadsSoft Recoverys:**\n${message}`);
+    
+    // ✅ MARK ORDER AS REPLIED
+    const order = orders.find(o => o.discord === user.id && !o.replied);
+    if (order) {
+      order.replied = true;
+      saveOrders();
+    }
+
     await interaction.reply({
       content: `✅ Message sent to **${user.username}**`,
       ephemeral: true,
@@ -89,5 +124,3 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 client.login(process.env.BOT_TOKEN);
-
-
