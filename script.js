@@ -1,12 +1,12 @@
 // ----- FAQ toggle -----
-document.querySelectorAll('.faq-item').forEach(item => {
-  const answer = item.querySelector('.faq-answer');
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const answer = item.querySelector('.faq-answer');
 
-  item.addEventListener('click', e => {
-    // Prevent clicking inside the answer from re-triggering
-    if (answer && answer.contains(e.target)) return;
-
-    item.classList.toggle('active');
+    item.addEventListener('click', e => {
+      if (answer && answer.contains(e.target)) return;
+      item.classList.toggle('active');
+    });
   });
 });
 
