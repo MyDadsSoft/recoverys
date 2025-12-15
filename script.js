@@ -1,9 +1,15 @@
 // ----- FAQ toggle -----
 document.querySelectorAll('.faq-item').forEach(item => {
-  item.querySelector('h4').addEventListener('click', () => {
+  const answer = item.querySelector('.faq-answer');
+
+  item.addEventListener('click', e => {
+    // Prevent clicking inside the answer from re-triggering
+    if (answer && answer.contains(e.target)) return;
+
     item.classList.toggle('active');
   });
 });
+
 
 // ----- Currency conversion (GBP default) -----
 const fallbackRates = {
