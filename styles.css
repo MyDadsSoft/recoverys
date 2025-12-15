@@ -1,1 +1,18 @@
+/* =====================
+   FAQ STYLES
+   ===================== */
 
+.faq-item {
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.faq-answer {
+  display: none;
+  margin-top: 8px;
+  color: #ccc;
+}
+
+.faq-item.active .faq-answer {
+  display: block;
+}
