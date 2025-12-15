@@ -1,18 +1,30 @@
-/* =====================
-   FAQ STYLES
-   ===================== */
+/* =========================
+   FAQ TOGGLE STYLES
+   ========================= */
 
 .faq-item {
   cursor: pointer;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
+/* Hide answers by default */
 .faq-answer {
   display: none;
   margin-top: 8px;
-  color: #ccc;
+  color: #ddd;
+  line-height: 1.5;
 }
 
+/* Show answer when active */
 .faq-item.active .faq-answer {
   display: block;
+}
+
+/* Optional: small visual feedback */
+.faq-item h4 {
+  transition: color 0.2s ease;
+}
+
+.faq-item.active h4 {
+  color: #39ff14;
 }
