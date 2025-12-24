@@ -156,9 +156,9 @@ const pricesUSD = {
 
 const currencyRates = {
   USD: 1,
-  EUR: 0.93,
-  GBP: 0.748,
-  AUD: 1.52
+  GBP: 0.79,   // £
+  EUR: 0.92,   // €
+  AUD: 1.55    // A$
 };
 
 // ---------- HELPER TO SEND ORDER TO DISCORD ----------
