@@ -149,9 +149,10 @@ const pricesUSD = {
   'Modded Heists': 20,
   'RP Boost': 10,
   'All Unlocks': 40,
-  'New Modded Account': 40,
-  'Standard Account': 27
+  'New Modded Account': 40,        // £30 ≈ $40
+  'Standard Owned Account': 27     // £20 ≈ $27
 };
+
 
 const currencyRates = {
   USD: 1,
