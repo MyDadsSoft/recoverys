@@ -148,8 +148,8 @@ if (BOT_TOKEN) {
 const pricesUSD = {
   'Modded Heists': 20,
   'RP Boost': 10,
-  'All Unlocks': 40
-  'New Modded Account': 40
+  'All Unlocks': 40,
+  'New Modded Account': 40,
   'Standard Account': 27
 };
 
